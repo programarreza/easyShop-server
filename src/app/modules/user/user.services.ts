@@ -63,6 +63,19 @@ const getAllUsersFromDB = async (filters: any, options: TPaginationOptions) => {
 
   const result = await prisma.user.findMany({
     where: whereConditions,
+    select: {
+      name: true,
+      email: true,
+      address: true,
+      id: true,
+      phoneNumber: true,
+      profilePhoto: true,
+      role: true,
+      status: true,
+      createdAt: true,
+      isDeleted: true,
+      updatedAt: true,
+    },
     skip,
     take: limit,
     orderBy:
@@ -83,4 +96,26 @@ const getAllUsersFromDB = async (filters: any, options: TPaginationOptions) => {
   };
 };
 
-export { createUserIntoDB, getAllUsersFromDB };
+const getSingleUserFromDB = async (id: string) => {
+  // find user
+  const result = await prisma.user.findUniqueOrThrow({
+    where: { id },
+    select: {
+      name: true,
+      email: true,
+      address: true,
+      id: true,
+      phoneNumber: true,
+      profilePhoto: true,
+      role: true,
+      status: true,
+      createdAt: true,
+      isDeleted: true,
+      updatedAt: true,
+    },
+  });
+
+  return result;
+};
+
+export { createUserIntoDB, getAllUsersFromDB, getSingleUserFromDB };
