@@ -5,6 +5,7 @@ import auth from "../../middlewares/auth";
 import validateRequest from "../../middlewares/validateRequest";
 import {
   createUser,
+  deleteUser,
   getAllUsers,
   getMyProfile,
   getSingleUser,
@@ -45,6 +46,8 @@ userRoutes.patch(
   validateRequest(updateUserValidationSchema),
   updateProfile
 );
+
+userRoutes.delete("/:id", deleteUser);
 
 userRoutes.get("/:id", getSingleUser);
 

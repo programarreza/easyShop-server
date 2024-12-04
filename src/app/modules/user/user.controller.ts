@@ -5,6 +5,7 @@ import sendResponse from "../../shared/sendResponse";
 import { userFilterableFields } from "./user.constant";
 import {
   createUserIntoDB,
+  deleteUserIntoDB,
   getAllUsersFromDB,
   getMyProfileFromDB,
   getSingleUserFromDB,
@@ -80,4 +81,24 @@ const updateProfile = catchAsync(async (req, res) => {
   });
 });
 
-export { createUser, getAllUsers, getMyProfile, getSingleUser, updateProfile };
+const deleteUser = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  const result = await deleteUserIntoDB(id);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "User deleted successfully!",
+    data: result,
+  });
+});
+
+export {
+  createUser,
+  deleteUser,
+  getAllUsers,
+  getMyProfile,
+  getSingleUser,
+  updateProfile,
+};
