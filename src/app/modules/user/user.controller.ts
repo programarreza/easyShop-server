@@ -6,11 +6,15 @@ import { userFilterableFields } from "./user.constant";
 import {
   createUserIntoDB,
   getAllUsersFromDB,
+  getMyProfileFromDB,
   getSingleUserFromDB,
 } from "./user.services";
 
 const createUser = catchAsync(async (req, res) => {
-  const result = await createUserIntoDB(req.body);
+  const result = await createUserIntoDB({
+    ...req.body,
+    profilePhoto: req.file?.path,
+  });
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
@@ -47,4 +51,17 @@ const getSingleUser = catchAsync(async (req, res) => {
   });
 });
 
-export { createUser, getAllUsers, getSingleUser };
+const getMyProfile = catchAsync(async (req, res) => {
+  const user = req.user;
+
+  const result = await getMyProfileFromDB(user);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "My profile retrieved successfully!",
+    data: result,
+  });
+});
+
+export { createUser, getAllUsers, getMyProfile, getSingleUser };

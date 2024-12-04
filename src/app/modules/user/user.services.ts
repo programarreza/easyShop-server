@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { StatusCodes } from "http-status-codes";
+import { JwtPayload } from "jsonwebtoken";
 import AppError from "../../error/AppError";
 import { calculatePagination } from "../../helpers/calculatePagination";
 import { TPaginationOptions } from "../../interfaces/TPasination";
@@ -118,4 +119,31 @@ const getSingleUserFromDB = async (id: string) => {
   return result;
 };
 
-export { createUserIntoDB, getAllUsersFromDB, getSingleUserFromDB };
+const getMyProfileFromDB = async (user: JwtPayload) => {
+  // find user
+  const result = await prisma.user.findUniqueOrThrow({
+    where: { email: user.email },
+    select: {
+      name: true,
+      email: true,
+      address: true,
+      id: true,
+      phoneNumber: true,
+      profilePhoto: true,
+      role: true,
+      status: true,
+      createdAt: true,
+      isDeleted: true,
+      updatedAt: true,
+    },
+  });
+
+  return result;
+};
+
+export {
+  createUserIntoDB,
+  getAllUsersFromDB,
+  getMyProfileFromDB,
+  getSingleUserFromDB,
+};
