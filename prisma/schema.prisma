@@ -33,6 +33,7 @@ model User {
   isDeleted    Boolean    @default(false)
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
+  shop         Shop?
 }
 
 model Categories {
@@ -43,4 +44,18 @@ model Categories {
   isDeleted   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Shop {
+  id       String @id @default(uuid())
+  vendorId String @unique
+  vendor   User   @relation(fields: [vendorId], references: [id])
+
+  name          String
+  logo          String
+  description   String
+  followerCount Int      @default(0)
+  isDeleted     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
