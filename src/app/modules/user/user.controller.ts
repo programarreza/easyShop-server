@@ -8,6 +8,7 @@ import {
   getAllUsersFromDB,
   getMyProfileFromDB,
   getSingleUserFromDB,
+  updateProfileFromDB,
 } from "./user.services";
 
 const createUser = catchAsync(async (req, res) => {
@@ -64,4 +65,19 @@ const getMyProfile = catchAsync(async (req, res) => {
   });
 });
 
-export { createUser, getAllUsers, getMyProfile, getSingleUser };
+const updateProfile = catchAsync(async (req, res) => {
+  const user = req.user;
+  const result = await updateProfileFromDB(user, {
+    ...req.body,
+    profilePhoto: req.file?.path,
+  });
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Profile updated successfully!",
+    data: result,
+  });
+});
+
+export { createUser, getAllUsers, getMyProfile, getSingleUser, updateProfile };

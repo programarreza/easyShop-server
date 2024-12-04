@@ -8,8 +8,12 @@ import {
   getAllUsers,
   getMyProfile,
   getSingleUser,
+  updateProfile,
 } from "./user.controller";
-import { createUserValidationSchema } from "./user.validation";
+import {
+  createUserValidationSchema,
+  updateUserValidationSchema,
+} from "./user.validation";
 
 const userRoutes = Router();
 userRoutes.post(
@@ -28,6 +32,18 @@ userRoutes.get(
   "/me",
   auth(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER),
   getMyProfile
+);
+
+userRoutes.patch(
+  "/me-update",
+  auth(UserRole.ADMIN, UserRole.VENDOR, UserRole.CUSTOMER),
+  multerUpload.single("image"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = JSON.parse(req.body.data);
+    next();
+  },
+  validateRequest(updateUserValidationSchema),
+  updateProfile
 );
 
 userRoutes.get("/:id", getSingleUser);

@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, User, UserStatus } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { StatusCodes } from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
@@ -63,7 +63,7 @@ const getAllUsersFromDB = async (filters: any, options: TPaginationOptions) => {
     andConditions.length > 0 ? { AND: andConditions } : {};
 
   const result = await prisma.user.findMany({
-    where: whereConditions,
+    where: { ...whereConditions, status: UserStatus.ACTIVE },
     select: {
       name: true,
       email: true,
@@ -100,7 +100,7 @@ const getAllUsersFromDB = async (filters: any, options: TPaginationOptions) => {
 const getSingleUserFromDB = async (id: string) => {
   // find user
   const result = await prisma.user.findUniqueOrThrow({
-    where: { id },
+    where: { id, status: UserStatus.ACTIVE },
     select: {
       name: true,
       email: true,
@@ -122,7 +122,7 @@ const getSingleUserFromDB = async (id: string) => {
 const getMyProfileFromDB = async (user: JwtPayload) => {
   // find user
   const result = await prisma.user.findUniqueOrThrow({
-    where: { email: user.email },
+    where: { email: user.email, status: UserStatus.ACTIVE },
     select: {
       name: true,
       email: true,
@@ -141,9 +141,28 @@ const getMyProfileFromDB = async (user: JwtPayload) => {
   return result;
 };
 
+const updateProfileFromDB = async (user: JwtPayload, payload: User) => {
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  const userInfo = await prisma.user.update({
+    where: {
+      email: userData.email,
+    },
+    data: payload,
+  });
+
+  return userInfo;
+};
+
 export {
   createUserIntoDB,
   getAllUsersFromDB,
   getMyProfileFromDB,
   getSingleUserFromDB,
+  updateProfileFromDB
 };
