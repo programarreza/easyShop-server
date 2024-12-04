@@ -3,7 +3,11 @@ import { NextFunction, Request, Response, Router } from "express";
 import { multerUpload } from "../../config/multer.config";
 import auth from "../../middlewares/auth";
 import validateRequest from "../../middlewares/validateRequest";
-import { createCategory } from "./categories.controller";
+import {
+  createCategory,
+  getAllCategories,
+  getSingleCategory,
+} from "./categories.controller";
 import { createCategoryValidationSchema } from "./categories.validation";
 
 const categoriesRoutes = Router();
@@ -18,6 +22,18 @@ categoriesRoutes.post(
   },
   validateRequest(createCategoryValidationSchema),
   createCategory
+);
+
+categoriesRoutes.get(
+  "/",
+  auth(UserRole.ADMIN, UserRole.VENDOR),
+  getAllCategories
+);
+
+categoriesRoutes.get(
+  "/:id",
+  auth(UserRole.ADMIN, UserRole.VENDOR),
+  getSingleCategory
 );
 
 export default categoriesRoutes;

@@ -17,4 +17,25 @@ const createCategoryIntoDB = async (payload: any) => {
 
   return result;
 };
-export { createCategoryIntoDB };
+
+const getAllCategoriesFromDB = async () => {
+  const result = await prisma.categories.findMany();
+
+  return result;
+};
+
+const getSingleCategoryFromDB = async (id: string) => {
+  const result = await prisma.categories.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  return result;
+};
+
+export {
+  createCategoryIntoDB,
+  getAllCategoriesFromDB,
+  getSingleCategoryFromDB,
+};

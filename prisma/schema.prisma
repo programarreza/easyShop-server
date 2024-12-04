@@ -40,7 +40,6 @@ model Categories {
   name        String   @unique
   description String
   images      String?
-  rating      Int      @default(0)
   isDeleted   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
