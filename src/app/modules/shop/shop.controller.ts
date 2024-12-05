@@ -7,6 +7,7 @@ import {
   getAllShopsFromDB,
   getMyShopFromDB,
   getSingleShopFromDB,
+  updateMyShopIntoDB,
 } from "./shop.services";
 
 const createShop = catchAsync(async (req, res) => {
@@ -62,4 +63,19 @@ const getMyShop = catchAsync(async (req, res) => {
   });
 });
 
-export { createShop, getAllShops, getMyShop, getSingleShop };
+const updateMyShop = catchAsync(async (req, res) => {
+  const user = req.user;
+  const result = await updateMyShopIntoDB(user, {
+    ...req.body,
+    logo: req.file?.path,
+  });
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Update my shop retrieved successfully!",
+    data: result,
+  });
+});
+
+export { createShop, getAllShops, getMyShop, getSingleShop, updateMyShop };

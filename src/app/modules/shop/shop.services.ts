@@ -112,4 +112,34 @@ const getMyShopFromDB = async (user: JwtPayload) => {
   return result;
 };
 
-export { createShopIntoDB, getAllShopsFromDB, getSingleShopFromDB, getMyShopFromDB };
+const updateMyShopIntoDB = async (user: JwtPayload, payload: Partial<Shop>) => {
+  const vendorData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+      role: UserRole.VENDOR,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  // find user
+  const shopData = await prisma.shop.findUniqueOrThrow({
+    where: { vendorId: vendorData.id, isDeleted: false },
+  });
+
+  const result = await prisma.shop.update({
+    where: {
+      id: shopData.id,
+    },
+    data: payload,
+  });
+
+  return result;
+};
+
+export {
+  createShopIntoDB,
+  getAllShopsFromDB,
+  getMyShopFromDB,
+  getSingleShopFromDB,
+  updateMyShopIntoDB
+};

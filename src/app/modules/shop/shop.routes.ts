@@ -8,8 +8,12 @@ import {
   getAllShops,
   getMyShop,
   getSingleShop,
+  updateMyShop,
 } from "./shop.controller";
-import { createShopValidationSchema } from "./shop.validation";
+import {
+  createShopValidationSchema,
+  updateShopValidationSchema,
+} from "./shop.validation";
 
 const shopsRoutes = Router();
 
@@ -27,6 +31,18 @@ shopsRoutes.post(
 
 shopsRoutes.get("/", getAllShops);
 shopsRoutes.get("/my-shop", auth(UserRole.VENDOR), getMyShop);
+
+shopsRoutes.patch(
+  "/my-shop",
+  multerUpload.single("image"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = JSON.parse(req.body.data);
+    next();
+  },
+  validateRequest(updateShopValidationSchema),
+  auth(UserRole.VENDOR),
+  updateMyShop
+);
 
 shopsRoutes.get("/:id", getSingleShop);
 
