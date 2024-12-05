@@ -5,6 +5,7 @@ import auth from "../../middlewares/auth";
 import validateRequest from "../../middlewares/validateRequest";
 import {
   createProduct,
+  deleteProduct,
   getAllProducts,
   getSingleProduct,
   updateProduct,
@@ -29,7 +30,13 @@ productRoutes.post(
 );
 
 productRoutes.get("/", getAllProducts);
-productRoutes.get("/:id", getSingleProduct);
+
+productRoutes.delete("/:id", deleteProduct);
+
+productRoutes.get(
+  "/:id",
+  getSingleProduct
+);
 
 productRoutes.patch(
   "/:id",

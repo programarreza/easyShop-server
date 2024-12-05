@@ -5,6 +5,7 @@ import sendResponse from "../../shared/sendResponse";
 import { productFilterableFields } from "./product.constant";
 import {
   createProductIntoDB,
+  deleteProductIntoDB,
   getAllProductsFromDB,
   getSingleProductFromDB,
   updateProductFromDB,
@@ -66,4 +67,22 @@ const updateProduct = catchAsync(async (req, res) => {
   });
 });
 
-export { createProduct, getAllProducts, getSingleProduct, updateProduct };
+const deleteProduct = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await deleteProductIntoDB(id);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "product deleted successfully!",
+    data: result,
+  });
+});
+
+export {
+  createProduct,
+  deleteProduct,
+  getAllProducts,
+  getSingleProduct,
+  updateProduct,
+};
