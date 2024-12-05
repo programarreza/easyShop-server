@@ -4,6 +4,7 @@ import pick from "../../shared/pick";
 import sendResponse from "../../shared/sendResponse";
 import {
   createShopIntoDB,
+  deleteMyShopIntoDB,
   getAllShopsFromDB,
   getMyShopFromDB,
   getSingleShopFromDB,
@@ -73,9 +74,28 @@ const updateMyShop = catchAsync(async (req, res) => {
   sendResponse(res, {
     statusCode: StatusCodes.OK,
     success: true,
-    message: "Update my shop retrieved successfully!",
+    message: "Update my shop successfully!",
     data: result,
   });
 });
 
-export { createShop, getAllShops, getMyShop, getSingleShop, updateMyShop };
+const deleteMyShop = catchAsync(async (req, res) => {
+  const user = req.user;
+  const result = await deleteMyShopIntoDB(user);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Deleted my shop successfully!",
+    data: result,
+  });
+});
+
+export {
+  createShop,
+  deleteMyShop,
+  getAllShops,
+  getMyShop,
+  getSingleShop,
+  updateMyShop,
+};

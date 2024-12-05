@@ -5,6 +5,7 @@ import auth from "../../middlewares/auth";
 import validateRequest from "../../middlewares/validateRequest";
 import {
   createShop,
+  deleteMyShop,
   getAllShops,
   getMyShop,
   getSingleShop,
@@ -43,6 +44,8 @@ shopsRoutes.patch(
   auth(UserRole.VENDOR),
   updateMyShop
 );
+
+shopsRoutes.delete("/my-shop", auth(UserRole.VENDOR), deleteMyShop);
 
 shopsRoutes.get("/:id", getSingleShop);
 
