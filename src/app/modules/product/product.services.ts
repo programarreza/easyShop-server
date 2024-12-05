@@ -118,4 +118,26 @@ const getSingleProductFromDB = async (id: string) => {
   return result;
 };
 
-export { createProductIntoDB, getAllProductsFromDB, getSingleProductFromDB };
+const updateProductFromDB = async (id: string, payload: Partial<Product>) => {
+  await prisma.product.findUniqueOrThrow({
+    where: {
+      id,
+      isDeleted: false,
+    },
+  });
+
+  // update product
+  const result = await prisma.product.update({
+    where: { id },
+    data: payload,
+  });
+
+  return result;
+};
+
+export {
+  createProductIntoDB,
+  getAllProductsFromDB,
+  getSingleProductFromDB,
+  updateProductFromDB,
+};

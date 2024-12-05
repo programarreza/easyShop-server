@@ -7,8 +7,12 @@ import {
   createProduct,
   getAllProducts,
   getSingleProduct,
+  updateProduct,
 } from "./product.controller";
-import { createProductValidationSchema } from "./product.validation";
+import {
+  createProductValidationSchema,
+  updateProductValidationSchema,
+} from "./product.validation";
 
 const productRoutes = Router();
 
@@ -26,5 +30,17 @@ productRoutes.post(
 
 productRoutes.get("/", getAllProducts);
 productRoutes.get("/:id", getSingleProduct);
+
+productRoutes.patch(
+  "/:id",
+  auth(UserRole.VENDOR, UserRole.ADMIN),
+  multerUpload.single("image"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = JSON.parse(req.body.data);
+    next();
+  },
+  validateRequest(updateProductValidationSchema),
+  updateProduct
+);
 
 export default productRoutes;

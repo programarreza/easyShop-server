@@ -7,6 +7,7 @@ import {
   createProductIntoDB,
   getAllProductsFromDB,
   getSingleProductFromDB,
+  updateProductFromDB,
 } from "./product.services";
 
 const createProduct = catchAsync(async (req, res) => {
@@ -50,4 +51,19 @@ const getSingleProduct = catchAsync(async (req, res) => {
   });
 });
 
-export { createProduct, getAllProducts, getSingleProduct };
+const updateProduct = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await updateProductFromDB(id, {
+    ...req.body,
+    images: req.file?.path,
+  });
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "product updated successfully!",
+    data: result,
+  });
+});
+
+export { createProduct, getAllProducts, getSingleProduct, updateProduct };
