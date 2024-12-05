@@ -37,4 +37,27 @@ const createReviewIntoDB = async (user: JwtPayload, payload: Review) => {
   return result;
 };
 
-export { createReviewIntoDB };
+const getAllReviewsFromDB = async () => {
+  const result = await prisma.review.findMany();
+
+  return result;
+};
+
+const getMyReviewsFromDB = async (user: JwtPayload) => {
+  const customerData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  const result = await prisma.review.findMany({
+    where: {
+      customerId: customerData.id,
+    },
+  });
+
+  return result;
+};
+
+export { createReviewIntoDB, getAllReviewsFromDB, getMyReviewsFromDB };
