@@ -14,6 +14,11 @@ enum UserStatus {
   SUSPENDED
 }
 
+enum ShopStatus {
+  ACTIVE
+  BLOCKED
+}
+
 enum UserRole {
   ADMIN
   VENDOR
@@ -37,13 +42,14 @@ model User {
 }
 
 model Categories {
-  id          String   @id @default(uuid())
-  name        String   @unique
+  id          String    @id @default(uuid())
+  name        String    @unique
   description String
   images      String?
-  isDeleted   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  isDeleted   Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  product     Product[]
 }
 
 model Shop {
@@ -54,8 +60,32 @@ model Shop {
   name          String
   logo          String
   description   String
-  followerCount Int      @default(0)
-  isDeleted     Boolean  @default(false)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  followerCount Int        @default(0)
+  status        ShopStatus @default(ACTIVE)
+
+  isDeleted Boolean   @default(false)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  product   Product[]
+}
+
+model Product {
+  id     String @id @default(uuid())
+  shopId String
+  shop   Shop   @relation(fields: [shopId], references: [id])
+
+  name       String
+  price      Int
+  categoryId String
+  categories Categories @relation(fields: [categoryId], references: [id])
+
+  inventoryCount Int    @default(0)
+  images         String
+  description    String
+  discount       Int    @default(0)
+  rating         Int    @default(0)
+
+  isDeleted Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
