@@ -7,8 +7,12 @@ import {
   createCategory,
   getAllCategories,
   getSingleCategory,
+  updateCategory,
 } from "./categories.controller";
-import { createCategoryValidationSchema } from "./categories.validation";
+import {
+  createCategoryValidationSchema,
+  updateCategoryValidationSchema,
+} from "./categories.validation";
 
 const categoriesRoutes = Router();
 
@@ -34,6 +38,18 @@ categoriesRoutes.get(
   "/:id",
   auth(UserRole.ADMIN, UserRole.VENDOR),
   getSingleCategory
+);
+
+categoriesRoutes.patch(
+  "/:id",
+  auth(UserRole.ADMIN),
+  multerUpload.single("image"),
+  (req: Request, res: Response, next: NextFunction) => {
+    req.body = JSON.parse(req.body.data);
+    next();
+  },
+  validateRequest(updateCategoryValidationSchema),
+  updateCategory
 );
 
 export default categoriesRoutes;

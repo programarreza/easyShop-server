@@ -5,6 +5,7 @@ import {
   createCategoryIntoDB,
   getAllCategoriesFromDB,
   getSingleCategoryFromDB,
+  updateCategoryIntoDB,
 } from "./categories.services";
 
 const createCategory = catchAsync(async (req, res) => {
@@ -43,4 +44,19 @@ const getSingleCategory = catchAsync(async (req, res) => {
   });
 });
 
-export { createCategory, getAllCategories, getSingleCategory };
+const updateCategory = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await updateCategoryIntoDB(id, {
+    ...req.body,
+    images: req.file?.path,
+  });
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "category updated successfully!",
+    data: result,
+  });
+});
+
+export { createCategory, getAllCategories, getSingleCategory, updateCategory };

@@ -11,4 +11,19 @@ const createCategoryValidationSchema = z.object({
   }),
 });
 
-export { createCategoryValidationSchema };
+const updateCategoryValidationSchema = z.object({
+  body: z.object({
+    name: z
+      .string({
+        required_error: "name is required",
+      })
+      .optional(),
+    description: z
+      .string({
+        required_error: "description  is required",
+      })
+      .optional(),
+  }),
+});
+
+export { createCategoryValidationSchema, updateCategoryValidationSchema };

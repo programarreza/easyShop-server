@@ -1,3 +1,4 @@
+import { Categories } from "@prisma/client";
 import { StatusCodes } from "http-status-codes";
 import AppError from "../../error/AppError";
 import prisma from "../../shared/prisma";
@@ -34,8 +35,30 @@ const getSingleCategoryFromDB = async (id: string) => {
   return result;
 };
 
+const updateCategoryIntoDB = async (
+  id: string,
+  payload: Partial<Categories>
+) => {
+  const categoryData = await prisma.categories.findUniqueOrThrow({
+    where: {
+      id,
+      isDeleted: false,
+    },
+  });
+
+  const result = await prisma.categories.update({
+    where: {
+      id: categoryData.id,
+    },
+    data: payload,
+  });
+
+  return result;
+};
+
 export {
   createCategoryIntoDB,
   getAllCategoriesFromDB,
   getSingleCategoryFromDB,
+  updateCategoryIntoDB
 };
