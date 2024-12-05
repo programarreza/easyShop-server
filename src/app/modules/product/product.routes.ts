@@ -3,7 +3,7 @@ import { NextFunction, Request, Response, Router } from "express";
 import { multerUpload } from "../../config/multer.config";
 import auth from "../../middlewares/auth";
 import validateRequest from "../../middlewares/validateRequest";
-import { createProduct } from "./product.controller";
+import { createProduct, getAllProducts } from "./product.controller";
 import { createProductValidationSchema } from "./product.validation";
 
 const productRoutes = Router();
@@ -19,5 +19,7 @@ productRoutes.post(
   validateRequest(createProductValidationSchema),
   createProduct
 );
+
+productRoutes.get("/", getAllProducts);
 
 export default productRoutes;
