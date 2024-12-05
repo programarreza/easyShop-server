@@ -5,6 +5,7 @@ import sendResponse from "../../shared/sendResponse";
 import {
   createShopIntoDB,
   getAllShopsFromDB,
+  getMyShopFromDB,
   getSingleShopFromDB,
 } from "./shop.services";
 
@@ -49,4 +50,16 @@ const getSingleShop = catchAsync(async (req, res) => {
   });
 });
 
-export { createShop, getAllShops, getSingleShop };
+const getMyShop = catchAsync(async (req, res) => {
+  const user = req.user;
+  const result = await getMyShopFromDB(user);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "My shop retrieved successfully!",
+    data: result,
+  });
+});
+
+export { createShop, getAllShops, getMyShop, getSingleShop };

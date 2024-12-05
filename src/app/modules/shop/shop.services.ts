@@ -95,4 +95,21 @@ const getSingleShopFromDB = async (id: string) => {
   return result;
 };
 
-export { createShopIntoDB, getAllShopsFromDB, getSingleShopFromDB };
+const getMyShopFromDB = async (user: JwtPayload) => {
+  const vendorData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+      role: UserRole.VENDOR,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  // find user
+  const result = await prisma.shop.findUnique({
+    where: { vendorId: vendorData.id, isDeleted: false },
+  });
+
+  return result;
+};
+
+export { createShopIntoDB, getAllShopsFromDB, getSingleShopFromDB, getMyShopFromDB };
