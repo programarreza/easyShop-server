@@ -1,8 +1,11 @@
-import { Shop, UserRole, UserStatus } from "@prisma/client";
+import { Prisma, Shop, UserRole, UserStatus } from "@prisma/client";
 import { StatusCodes } from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
 import AppError from "../../error/AppError";
+import { calculatePagination } from "../../helpers/calculatePagination";
+import { TPaginationOptions } from "../../interfaces/TPasination";
 import prisma from "../../shared/prisma";
+import { shopSearchableFields } from "./shop.constant";
 
 const createShopIntoDB = async (user: JwtPayload, payload: Shop) => {
   // find vendor
@@ -29,4 +32,52 @@ const createShopIntoDB = async (user: JwtPayload, payload: Shop) => {
   return result;
 };
 
-export { createShopIntoDB };
+const getAllShopsFromDB = async (filters: any, options: TPaginationOptions) => {
+  const { page, limit, skip, sortBy, sortOrder } = calculatePagination(
+    options as any
+  );
+
+  const { searchTerm } = filters;
+  const andConditions: Prisma.ShopWhereInput[] = [];
+
+  if (searchTerm) {
+    andConditions.push({
+      OR: shopSearchableFields.map((field) => ({
+        [field]: {
+          contains: searchTerm,
+          mode: "insensitive",
+        },
+      })),
+    });
+  }
+
+  andConditions.push({
+    isDeleted: false,
+  });
+
+  const whereConditions: Prisma.ShopWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const result = await prisma.shop.findMany({
+    where: { ...whereConditions, isDeleted: false },
+    skip,
+    take: limit,
+    orderBy:
+      sortBy && sortOrder ? { [sortBy]: sortOrder } : { createdAt: "desc" },
+  });
+
+  const total = await prisma.shop.count({
+    where: whereConditions,
+  });
+
+  return {
+    meta: {
+      total,
+      page,
+      limit,
+    },
+    data: result,
+  };
+};
+
+export { createShopIntoDB, getAllShopsFromDB };

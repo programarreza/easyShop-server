@@ -1,7 +1,8 @@
 import { StatusCodes } from "http-status-codes";
 import catchAsync from "../../shared/catchAsync";
+import pick from "../../shared/pick";
 import sendResponse from "../../shared/sendResponse";
-import { createShopIntoDB } from "./shop.services";
+import { createShopIntoDB, getAllShopsFromDB } from "./shop.services";
 
 const createShop = catchAsync(async (req, res) => {
   const user = req.user;
@@ -18,4 +19,18 @@ const createShop = catchAsync(async (req, res) => {
   });
 });
 
-export { createShop };
+const getAllShops = catchAsync(async (req, res) => {
+  const filters = pick(req.query, ["name"]);
+
+  const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+  const result = await getAllShopsFromDB(filters, options);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Shops retrieved successfully!",
+    data: result,
+  });
+});
+
+export { createShop, getAllShops };
