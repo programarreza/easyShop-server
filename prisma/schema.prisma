@@ -39,6 +39,7 @@ model User {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   shop         Shop?
+  review       Review[]
 }
 
 model Categories {
@@ -86,6 +87,22 @@ model Product {
   rating         Int    @default(0)
 
   isDeleted Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  review    Review[]
+}
+
+model Review {
+  id         String @id @default(uuid())
+  customerId String
+  customer   User   @relation(fields: [customerId], references: [id])
+
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+
+  rating     Decimal @default(0)
+  reviewText String
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
