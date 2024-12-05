@@ -80,4 +80,19 @@ const getAllShopsFromDB = async (filters: any, options: TPaginationOptions) => {
   };
 };
 
-export { createShopIntoDB, getAllShopsFromDB };
+const getSingleShopFromDB = async (id: string) => {
+  await prisma.shop.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  // find user
+  const result = await prisma.shop.findUnique({
+    where: { id, isDeleted: false },
+  });
+
+  return result;
+};
+
+export { createShopIntoDB, getAllShopsFromDB, getSingleShopFromDB };
