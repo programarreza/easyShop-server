@@ -103,4 +103,19 @@ const getAllProductsFromDB = async (
   };
 };
 
-export { createProductIntoDB, getAllProductsFromDB };
+const getSingleProductFromDB = async (id: string) => {
+  await prisma.product.findUniqueOrThrow({
+    where: {
+      id,
+    },
+  });
+
+  // find product
+  const result = await prisma.product.findUnique({
+    where: { id, isDeleted: false },
+  });
+
+  return result;
+};
+
+export { createProductIntoDB, getAllProductsFromDB, getSingleProductFromDB };

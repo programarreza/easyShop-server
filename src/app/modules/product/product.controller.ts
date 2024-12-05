@@ -3,7 +3,11 @@ import catchAsync from "../../shared/catchAsync";
 import pick from "../../shared/pick";
 import sendResponse from "../../shared/sendResponse";
 import { productFilterableFields } from "./product.constant";
-import { createProductIntoDB, getAllProductsFromDB } from "./product.services";
+import {
+  createProductIntoDB,
+  getAllProductsFromDB,
+  getSingleProductFromDB,
+} from "./product.services";
 
 const createProduct = catchAsync(async (req, res) => {
   const user = req.user;
@@ -34,4 +38,16 @@ const getAllProducts = catchAsync(async (req, res) => {
   });
 });
 
-export { createProduct, getAllProducts };
+const getSingleProduct = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await getSingleProductFromDB(id);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "product retrieved successfully!",
+    data: result,
+  });
+});
+
+export { createProduct, getAllProducts, getSingleProduct };
