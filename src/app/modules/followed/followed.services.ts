@@ -1,3 +1,4 @@
+import { UserRole, UserStatus } from "@prisma/client";
 import { StatusCodes } from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
 import AppError from "../../error/AppError";
@@ -36,4 +37,28 @@ const createFollowIntoDB = async (
   return result;
 };
 
-export { createFollowIntoDB };
+const getMyFollowedFromDB = async (user: JwtPayload) => {
+  const vendorData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+      role: UserRole.VENDOR,
+      status: UserStatus.ACTIVE,
+    },
+    include: {
+      shop: true,
+    },
+  });
+
+  const result = await prisma.followed.findMany({
+    where: {
+      shopId: vendorData.shop?.id,
+    },
+    include: {
+      shop: true,
+    },
+  });
+
+  return result;
+};
+
+export { createFollowIntoDB, getMyFollowedFromDB };
