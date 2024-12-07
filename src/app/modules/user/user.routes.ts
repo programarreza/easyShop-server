@@ -10,6 +10,7 @@ import {
   getMyProfile,
   getSingleUser,
   updateProfile,
+  userStatusChange,
 } from "./user.controller";
 import {
   createUserValidationSchema,
@@ -47,7 +48,8 @@ userRoutes.patch(
   updateProfile
 );
 
-userRoutes.delete("/:id", deleteUser);
+userRoutes.patch("/change-status/:id", auth(UserRole.ADMIN), userStatusChange);
+userRoutes.delete("/:id", auth(UserRole.ADMIN), deleteUser);
 
 userRoutes.get("/:id", getSingleUser);
 

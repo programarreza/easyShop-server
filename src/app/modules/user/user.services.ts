@@ -177,11 +177,33 @@ const deleteUserIntoDB = async (id: string) => {
   return result;
 };
 
+const userStatusChangeIntoDB = async (
+  id: string,
+  payload: { status: UserStatus }
+) => {
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      id,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  const result = await prisma.user.update({
+    where: {
+      id: userData.id,
+    },
+    data: payload,
+  });
+
+  return result;
+};
+
 export {
   createUserIntoDB,
+  deleteUserIntoDB,
   getAllUsersFromDB,
   getMyProfileFromDB,
   getSingleUserFromDB,
   updateProfileFromDB,
-  deleteUserIntoDB
+  userStatusChangeIntoDB,
 };

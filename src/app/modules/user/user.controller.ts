@@ -10,6 +10,7 @@ import {
   getMyProfileFromDB,
   getSingleUserFromDB,
   updateProfileFromDB,
+  userStatusChangeIntoDB,
 } from "./user.services";
 
 const createUser = catchAsync(async (req, res) => {
@@ -94,6 +95,18 @@ const deleteUser = catchAsync(async (req, res) => {
   });
 });
 
+const userStatusChange = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await userStatusChangeIntoDB(id, req.body);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "User status changed successfully!",
+    data: result,
+  });
+});
+
 export {
   createUser,
   deleteUser,
@@ -101,4 +114,5 @@ export {
   getMyProfile,
   getSingleUser,
   updateProfile,
+  userStatusChange
 };
