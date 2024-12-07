@@ -10,6 +10,7 @@ import {
   getMyProfile,
   getSingleUser,
   updateProfile,
+  userRoleChange,
   userStatusChange,
 } from "./user.controller";
 import {
@@ -49,6 +50,8 @@ userRoutes.patch(
 );
 
 userRoutes.patch("/change-status/:id", auth(UserRole.ADMIN), userStatusChange);
+userRoutes.patch("/change-role/:id", auth(UserRole.ADMIN), userRoleChange);
+
 userRoutes.delete("/:id", auth(UserRole.ADMIN), deleteUser);
 
 userRoutes.get("/:id", getSingleUser);

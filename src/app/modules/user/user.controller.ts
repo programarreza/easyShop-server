@@ -10,6 +10,7 @@ import {
   getMyProfileFromDB,
   getSingleUserFromDB,
   updateProfileFromDB,
+  userRoleChangeIntoDB,
   userStatusChangeIntoDB,
 } from "./user.services";
 
@@ -107,6 +108,18 @@ const userStatusChange = catchAsync(async (req, res) => {
   });
 });
 
+const userRoleChange = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await userRoleChangeIntoDB(id, req.body);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "User role changed successfully!",
+    data: result,
+  });
+});
+
 export {
   createUser,
   deleteUser,
@@ -114,5 +127,6 @@ export {
   getMyProfile,
   getSingleUser,
   updateProfile,
-  userStatusChange
+  userStatusChange,
+  userRoleChange
 };

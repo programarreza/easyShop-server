@@ -1,4 +1,4 @@
-import { Prisma, User, UserStatus } from "@prisma/client";
+import { Prisma, User, UserRole, UserStatus } from "@prisma/client";
 import bcrypt from "bcrypt";
 import { StatusCodes } from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
@@ -198,6 +198,27 @@ const userStatusChangeIntoDB = async (
   return result;
 };
 
+const userRoleChangeIntoDB = async (
+  id: string,
+  payload: { role: UserRole }
+) => {
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      id,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  const result = await prisma.user.update({
+    where: {
+      id: userData.id,
+    },
+    data: payload,
+  });
+
+  return result;
+};
+
 export {
   createUserIntoDB,
   deleteUserIntoDB,
@@ -206,4 +227,5 @@ export {
   getSingleUserFromDB,
   updateProfileFromDB,
   userStatusChangeIntoDB,
+  userRoleChangeIntoDB
 };
