@@ -63,7 +63,7 @@ const getAllUsersFromDB = async (filters: any, options: TPaginationOptions) => {
     andConditions.length > 0 ? { AND: andConditions } : {};
 
   const result = await prisma.user.findMany({
-    where: { ...whereConditions, status: UserStatus.ACTIVE },
+    where: { ...whereConditions, isDeleted: false },
     select: {
       name: true,
       email: true,
@@ -163,7 +163,7 @@ const deleteUserIntoDB = async (id: string) => {
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       id,
-      status: UserStatus.ACTIVE,
+      isDeleted: false,
     },
   });
 
@@ -184,7 +184,6 @@ const userStatusChangeIntoDB = async (
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       id,
-      status: UserStatus.ACTIVE,
     },
   });
 
@@ -205,7 +204,6 @@ const userRoleChangeIntoDB = async (
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       id,
-      status: UserStatus.ACTIVE,
     },
   });
 
@@ -226,6 +224,6 @@ export {
   getMyProfileFromDB,
   getSingleUserFromDB,
   updateProfileFromDB,
+  userRoleChangeIntoDB,
   userStatusChangeIntoDB,
-  userRoleChangeIntoDB
 };

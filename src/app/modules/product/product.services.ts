@@ -119,6 +119,30 @@ const getSingleProductFromDB = async (id: string) => {
   return result;
 };
 
+const getMyProductsFromDB = async (user: JwtPayload) => {
+  const vendorData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+      status: UserStatus.ACTIVE,
+    },
+    include: {
+      shop: true,
+    },
+  });
+
+  // find my product
+  const result = await prisma.product.findMany({
+    where: {
+      shopId: vendorData.shop?.id,
+    },
+    include: {
+      categories: true,
+    },
+  });
+
+  return result;
+};
+
 const updateProductFromDB = async (id: string, payload: Partial<Product>) => {
   await prisma.product.findUniqueOrThrow({
     where: {
@@ -159,6 +183,7 @@ export {
   createProductIntoDB,
   deleteProductIntoDB,
   getAllProductsFromDB,
+  getMyProductsFromDB,
   getSingleProductFromDB,
   updateProductFromDB,
 };
