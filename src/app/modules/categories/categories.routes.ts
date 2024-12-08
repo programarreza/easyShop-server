@@ -5,6 +5,7 @@ import auth from "../../middlewares/auth";
 import validateRequest from "../../middlewares/validateRequest";
 import {
   createCategory,
+  deleteCategory,
   getAllCategories,
   getSingleCategory,
   updateCategory,
@@ -51,5 +52,7 @@ categoriesRoutes.patch(
   validateRequest(updateCategoryValidationSchema),
   updateCategory
 );
+
+categoriesRoutes.delete("/:id", auth(UserRole.ADMIN), deleteCategory);
 
 export default categoriesRoutes;

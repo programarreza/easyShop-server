@@ -20,7 +20,11 @@ const createCategoryIntoDB = async (payload: any) => {
 };
 
 const getAllCategoriesFromDB = async () => {
-  const result = await prisma.categories.findMany();
+  const result = await prisma.categories.findMany({
+    where: {
+      isDeleted: false,
+    },
+  });
 
   return result;
 };
@@ -56,9 +60,38 @@ const updateCategoryIntoDB = async (
   return result;
 };
 
+const deleteCategoryIntoDB = async (id: string) => {
+  const categoryData = await prisma.categories.findUniqueOrThrow({
+    where: {
+      id,
+      isDeleted: false,
+    },
+  });
+
+  const categoryBelongToProductIn = await prisma.product.findMany({
+    where: {
+      categoryId: categoryData.id,
+    },
+  });
+
+  if (categoryBelongToProductIn.length > 0) {
+    throw new AppError(StatusCodes.BAD_REQUEST, "This category already used");
+  }
+
+  const result = await prisma.categories.update({
+    where: {
+      id: categoryData.id,
+    },
+    data: { isDeleted: true },
+  });
+
+  return result;
+};
+
 export {
   createCategoryIntoDB,
   getAllCategoriesFromDB,
   getSingleCategoryFromDB,
-  updateCategoryIntoDB
+  updateCategoryIntoDB,
+  deleteCategoryIntoDB
 };

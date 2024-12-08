@@ -134,6 +134,7 @@ const getMyProductsFromDB = async (user: JwtPayload) => {
   const result = await prisma.product.findMany({
     where: {
       shopId: vendorData.shop?.id,
+      isDeleted: false,
     },
     include: {
       categories: true,
@@ -144,7 +145,7 @@ const getMyProductsFromDB = async (user: JwtPayload) => {
 };
 
 const updateProductFromDB = async (id: string, payload: Partial<Product>) => {
-  await prisma.product.findUniqueOrThrow({
+  await prisma.product.findFirst({
     where: {
       id,
       isDeleted: false,

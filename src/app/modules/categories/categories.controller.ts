@@ -3,6 +3,7 @@ import catchAsync from "../../shared/catchAsync";
 import sendResponse from "../../shared/sendResponse";
 import {
   createCategoryIntoDB,
+  deleteCategoryIntoDB,
   getAllCategoriesFromDB,
   getSingleCategoryFromDB,
   updateCategoryIntoDB,
@@ -59,4 +60,22 @@ const updateCategory = catchAsync(async (req, res) => {
   });
 });
 
-export { createCategory, getAllCategories, getSingleCategory, updateCategory };
+const deleteCategory = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await deleteCategoryIntoDB(id);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "category deleted successfully!",
+    data: result,
+  });
+});
+
+export {
+  createCategory,
+  deleteCategory,
+  getAllCategories,
+  getSingleCategory,
+  updateCategory,
+};
