@@ -51,7 +51,7 @@ const getAllProductsFromDB = async (
     options as any
   );
 
-  const { searchTerm, ...filterData } = filters;
+  const { searchTerm, categories, ...filterData } = filters;
   const andConditions: Prisma.ProductWhereInput[] = [];
 
   if (searchTerm) {
@@ -62,6 +62,17 @@ const getAllProductsFromDB = async (
           mode: "insensitive",
         },
       })),
+    });
+  }
+
+  if (categories) {
+    andConditions.push({
+      categories: {
+        name: {
+          contains: categories,
+          mode: "insensitive",
+        },
+      },
     });
   }
 
@@ -114,6 +125,9 @@ const getSingleProductFromDB = async (id: string) => {
   // find product
   const result = await prisma.product.findUnique({
     where: { id, isDeleted: false },
+    include: {
+      categories: true
+    }
   });
 
   return result;
@@ -186,5 +200,6 @@ export {
   getAllProductsFromDB,
   getMyProductsFromDB,
   getSingleProductFromDB,
-  updateProductFromDB,
+  updateProductFromDB
 };
+

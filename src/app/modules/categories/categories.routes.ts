@@ -31,7 +31,6 @@ categoriesRoutes.post(
 
 categoriesRoutes.get(
   "/",
-  auth(UserRole.ADMIN, UserRole.VENDOR),
   getAllCategories
 );
 
