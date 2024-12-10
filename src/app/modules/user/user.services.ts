@@ -123,6 +123,9 @@ const getMyProfileFromDB = async (user: JwtPayload) => {
   // find user
   const result = await prisma.user.findUniqueOrThrow({
     where: { email: user.email, status: UserStatus.ACTIVE },
+    // include: {
+    //   shop: true,
+    // },
     select: {
       name: true,
       email: true,
@@ -135,6 +138,14 @@ const getMyProfileFromDB = async (user: JwtPayload) => {
       createdAt: true,
       isDeleted: true,
       updatedAt: true,
+      shop: {
+        select: {
+          id: true,
+          name: true,
+          logo: true,
+          status: true,
+        },
+      },
     },
   });
 
