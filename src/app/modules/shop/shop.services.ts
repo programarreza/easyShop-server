@@ -90,6 +90,9 @@ const getSingleShopFromDB = async (id: string) => {
   // find user
   const result = await prisma.shop.findUnique({
     where: { id, isDeleted: false },
+    include: {
+      vendor: true,
+    },
   });
 
   return result;
@@ -164,9 +167,9 @@ const deleteMyShopIntoDB = async (user: JwtPayload) => {
 
 export {
   createShopIntoDB,
+  deleteMyShopIntoDB,
   getAllShopsFromDB,
   getMyShopFromDB,
   getSingleShopFromDB,
   updateMyShopIntoDB,
-  deleteMyShopIntoDB
 };

@@ -8,6 +8,7 @@ import {
   deleteProduct,
   getAllProducts,
   getMyProducts,
+  getShopProducts,
   getSingleProduct,
   updateProduct,
 } from "./product.controller";
@@ -34,6 +35,8 @@ productRoutes.get("/", getAllProducts);
 productRoutes.get("/my-products", auth(UserRole.VENDOR), getMyProducts);
 
 productRoutes.delete("/:id", deleteProduct);
+
+productRoutes.get("/:id/shop-product", getShopProducts);
 
 productRoutes.get("/:id", getSingleProduct);
 

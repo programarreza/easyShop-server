@@ -8,6 +8,7 @@ import {
   deleteProductIntoDB,
   getAllProductsFromDB,
   getMyProductsFromDB,
+  getShopProductsFromDB,
   getSingleProductFromDB,
   updateProductFromDB,
 } from "./product.services";
@@ -49,6 +50,23 @@ const getSingleProduct = catchAsync(async (req, res) => {
     statusCode: StatusCodes.OK,
     success: true,
     message: "product retrieved successfully!",
+    data: result,
+  });
+});
+
+const getShopProducts = catchAsync(async (req, res) => {
+  const filters = pick(req.query, productFilterableFields);
+
+  const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+  // const result = await getAllProductsFromDB(filters, options);
+
+  const { id } = req.params;
+  const result = await getShopProductsFromDB(filters, options, id);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Shop product retrieved successfully!",
     data: result,
   });
 });
@@ -97,6 +115,7 @@ export {
   deleteProduct,
   getAllProducts,
   getMyProducts,
+  getShopProducts,
   getSingleProduct,
   updateProduct,
 };

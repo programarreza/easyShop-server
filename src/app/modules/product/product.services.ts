@@ -98,6 +98,14 @@ const getAllProductsFromDB = async (
     take: limit,
     orderBy:
       sortBy && sortOrder ? { [sortBy]: sortOrder } : { createdAt: "desc" },
+    include: {
+      categories: true,
+      shop: {
+        include: {
+          coupon: true,
+        },
+      },
+    },
   });
 
   const total = await prisma.product.count({
@@ -114,6 +122,107 @@ const getAllProductsFromDB = async (
   };
 };
 
+const getShopProductsFromDB = async (
+  filters: any,
+  options: TPaginationOptions,
+  shopId: string
+) => {
+  await prisma.shop.findUniqueOrThrow({
+    where: {
+      id: shopId,
+      isDeleted: false,
+    },
+  });
+
+  const { page, limit, skip, sortBy, sortOrder } = calculatePagination(
+    options as any
+  );
+
+  const { searchTerm, categories, ...filterData } = filters;
+  const andConditions: Prisma.ProductWhereInput[] = [];
+
+  if (searchTerm) {
+    andConditions.push({
+      OR: productSearchableFields.map((field) => ({
+        [field]: {
+          contains: searchTerm,
+          mode: "insensitive",
+        },
+      })),
+    });
+  }
+
+  if (categories) {
+    andConditions.push({
+      categories: {
+        name: {
+          contains: categories,
+          mode: "insensitive",
+        },
+      },
+    });
+  }
+
+  if (Object.keys(filterData).length > 0) {
+    const filterConditions = Object.keys(filterData).map((key) => ({
+      [key]: {
+        equals: (filterData as any)[key],
+      },
+    }));
+    andConditions.push(...filterConditions);
+  }
+
+  andConditions.push({
+    isDeleted: false,
+  });
+
+  const whereConditions: Prisma.ProductWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const result = await prisma.product.findMany({
+    where: { shopId, ...whereConditions, isDeleted: false },
+    skip,
+    take: limit,
+    orderBy:
+      sortBy && sortOrder ? { [sortBy]: sortOrder } : { createdAt: "desc" },
+    include: {
+      categories: true,
+      shop: {
+        include: {
+          coupon: true,
+        },
+      },
+    },
+  });
+
+  const total = await prisma.product.count({
+    where: { shopId, ...whereConditions },
+  });
+
+  return {
+    meta: {
+      total,
+      page,
+      limit,
+    },
+    data: result,
+  };
+
+  // // find product
+  // const result = await prisma.product.findMany({
+  //   where: { shopId, isDeleted: false },
+  //   include: {
+  //     categories: true,
+  //     shop: {
+  //       include: {
+  //         coupon: true,
+  //       },
+  //     },
+  //   },
+  // });
+
+  return result;
+};
 const getSingleProductFromDB = async (id: string) => {
   await prisma.product.findUniqueOrThrow({
     where: {
@@ -126,8 +235,13 @@ const getSingleProductFromDB = async (id: string) => {
   const result = await prisma.product.findUnique({
     where: { id, isDeleted: false },
     include: {
-      categories: true
-    }
+      categories: true,
+      shop: {
+        include: {
+          coupon: true,
+        },
+      },
+    },
   });
 
   return result;
@@ -199,7 +313,7 @@ export {
   deleteProductIntoDB,
   getAllProductsFromDB,
   getMyProductsFromDB,
+  getShopProductsFromDB,
   getSingleProductFromDB,
-  updateProductFromDB
+  updateProductFromDB,
 };
-
