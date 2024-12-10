@@ -70,6 +70,7 @@ model Shop {
   updatedAt DateTime   @updatedAt
   product   Product[]
   followed  Followed[]
+  coupon    Coupon?
 }
 
 model Product {
@@ -118,4 +119,20 @@ model Followed {
 
   @@id([customerId, shopId]) // composed key
   @@map("followed")
+}
+
+model Coupon {
+  id     String @id @default(uuid())
+  shopId String @unique
+  shop   Shop   @relation(fields: [shopId], references: [id])
+
+  code     String
+  discount Int    @default(0)
+
+  validFrom DateTime
+  validTo   DateTime
+
+  isDeleted Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
