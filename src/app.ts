@@ -8,7 +8,7 @@ import router from "./app/routers";
 const app: Application = express();
 app.use(
   cors({
-    origin: ["http://localhost:3000"],
+    origin: ["https://easyshopclient.vercel.app", "http://localhost:3000"],
     credentials: true,
   })
 );

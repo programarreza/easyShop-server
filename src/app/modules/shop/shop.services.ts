@@ -92,6 +92,7 @@ const getSingleShopFromDB = async (id: string) => {
     where: { id, isDeleted: false },
     include: {
       vendor: true,
+      coupon: true,
     },
   });
 

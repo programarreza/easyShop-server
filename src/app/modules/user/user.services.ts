@@ -139,11 +139,8 @@ const getMyProfileFromDB = async (user: JwtPayload) => {
       isDeleted: true,
       updatedAt: true,
       shop: {
-        select: {
-          id: true,
-          name: true,
-          logo: true,
-          status: true,
+        include: {
+          coupon: true,
         },
       },
     },
