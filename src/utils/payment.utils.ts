@@ -17,7 +17,7 @@ export const initiatePayment = async (paymentData: IPayment) => {
       signature_key: config.signature_key,
       tran_id: paymentData.transactionId,
       success_url: `${config.base_url}/api/v1/orders/confirmation?transactionId=${paymentData.transactionId}&status=success`,
-      fail_url: `${config.base_url}/api/v1/orders/confirmation?status=failed`,
+      fail_url: `${config.base_url}/api/v1/orders/failed?transactionId=${paymentData.transactionId}&status=failed`,
       cancel_url: `${config.client_url}`,
       amount: paymentData.totalPrice,
       currency: "BDT",

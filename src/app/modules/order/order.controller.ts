@@ -3,7 +3,11 @@ import { StatusCodes } from "http-status-codes";
 import config from "../../config";
 import catchAsync from "../../shared/catchAsync";
 import sendResponse from "../../shared/sendResponse";
-import { confirmOrderIntoDB, createOrderIntoDB } from "./order.services";
+import {
+  confirmOrderIntoDB,
+  createOrderIntoDB,
+  failedOrderIntoDB,
+} from "./order.services";
 
 // controller
 const createOrder = catchAsync(async (req, res) => {
@@ -41,4 +45,16 @@ const paymentConfirmation = catchAsync(async (req, res) => {
   }
 });
 
-export { createOrder, paymentConfirmation };
+const failedOrder = catchAsync(async (req, res) => {
+  const { transactionId } = req.query;
+
+  const result = await failedOrderIntoDB(transactionId as string);
+
+  if (result?.status === PaymentStatus.FAILED) {
+    const paymentUrl = `${config.client_url}/payment-failed`;
+
+    return res.redirect(paymentUrl);
+  }
+});
+
+export { createOrder, failedOrder, paymentConfirmation };

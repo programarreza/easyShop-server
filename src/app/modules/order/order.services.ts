@@ -96,7 +96,6 @@ const createOrderIntoDB = async (user: JwtPayload, payload: any) => {
 };
 
 const confirmOrderIntoDB = async (transactionId: string, status: string) => {
-
   if (!transactionId) {
     throw new AppError(StatusCodes.BAD_REQUEST, "Invalid notification.");
   }
@@ -138,11 +137,49 @@ const confirmOrderIntoDB = async (transactionId: string, status: string) => {
         });
       }
 
-      return paymentData
+      return paymentData;
     });
 
-    return result
+    return result;
   }
 };
 
-export { confirmOrderIntoDB, createOrderIntoDB };
+const failedOrderIntoDB = async (transactionId: string) => {
+  if (!transactionId) {
+    throw new AppError(StatusCodes.BAD_REQUEST, "Invalid notification.");
+  }
+
+  const payments = await prisma.payment.findMany({
+    where: {
+      transactionId,
+    },
+  });
+
+  if (payments.length === 0) {
+    throw new AppError(StatusCodes.BAD_REQUEST, "Payment not found.");
+  }
+
+  const payment = payments[0]; // Assuming only one payment is relevant
+
+  const result = await prisma.$transaction(async (tx) => {
+    // Update payment status
+    const paymentData = await tx.payment.update({
+      where: { id: payment.id },
+      data: {
+        status: PaymentStatus.FAILED,
+      },
+    });
+
+    // Update order status
+    await tx.order.update({
+      where: { id: payment.orderId },
+      data: { status: OrderStatus.CANCELED },
+    });
+
+    return paymentData;
+  });
+
+  return result;
+};
+
+export { confirmOrderIntoDB, createOrderIntoDB, failedOrderIntoDB };
