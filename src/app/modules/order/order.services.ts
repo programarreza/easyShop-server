@@ -1,8 +1,10 @@
 // services
-import { OrderStatus, UserStatus } from "@prisma/client";
+import { OrderStatus, PaymentStatus, UserStatus } from "@prisma/client";
+import { StatusCodes } from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
-import { initiatePayment } from "../../../utils/payment.utils";
+import { initiatePayment, verifyPayment } from "../../../utils/payment.utils";
+import AppError from "../../error/AppError";
 import prisma from "../../shared/prisma";
 
 const createOrderIntoDB = async (user: JwtPayload, payload: any) => {
@@ -89,9 +91,58 @@ const createOrderIntoDB = async (user: JwtPayload, payload: any) => {
 
   // Generate payment  link
   const paymentLink = await initiatePayment(paymentData);
-  console.log({ paymentLink, result, transactionId, paymentData });
 
   return paymentLink;
 };
 
-export { createOrderIntoDB };
+const confirmOrderIntoDB = async (transactionId: string, status: string) => {
+
+  if (!transactionId) {
+    throw new AppError(StatusCodes.BAD_REQUEST, "Invalid notification.");
+  }
+
+  // verify payment
+  const verifyPaymentResponse = await verifyPayment(transactionId);
+
+  const payments = await prisma.payment.findMany({
+    where: {
+      transactionId,
+    },
+  });
+
+  if (payments.length === 0) {
+    throw new AppError(StatusCodes.BAD_REQUEST, "Payment not found.");
+  }
+
+  if (
+    verifyPaymentResponse &&
+    verifyPaymentResponse.pay_status === "Successful"
+  ) {
+    const payment = payments[0]; // Assuming only one payment is relevant
+
+    const result = await prisma.$transaction(async (tx) => {
+      // Update payment status
+      const paymentData = await tx.payment.update({
+        where: { id: payment.id },
+        data: {
+          status:
+            status === "success" ? PaymentStatus.SUCCESS : PaymentStatus.FAILED,
+        },
+      });
+
+      // Update order status if payment is successful
+      if (status === "success") {
+        await tx.order.update({
+          where: { id: payment.orderId },
+          data: { status: OrderStatus.COMPLETED },
+        });
+      }
+
+      return paymentData
+    });
+
+    return result
+  }
+};
+
+export { confirmOrderIntoDB, createOrderIntoDB };

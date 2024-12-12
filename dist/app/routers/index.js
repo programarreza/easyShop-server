@@ -8,6 +8,7 @@ const auth_routes_1 = __importDefault(require("../modules/auth/auth.routes"));
 const categories_routes_1 = __importDefault(require("../modules/categories/categories.routes"));
 const coupon_routes_1 = __importDefault(require("../modules/coupon/coupon.routes"));
 const followed_routes_1 = __importDefault(require("../modules/followed/followed.routes"));
+const order_routes_1 = __importDefault(require("../modules/order/order.routes"));
 const product_routes_1 = __importDefault(require("../modules/product/product.routes"));
 const review_routes_1 = __importDefault(require("../modules/review/review.routes"));
 const shop_routes_1 = __importDefault(require("../modules/shop/shop.routes"));
@@ -45,6 +46,10 @@ const moduleRoutes = [
     {
         path: "/coupons",
         route: coupon_routes_1.default,
+    },
+    {
+        path: "/orders",
+        route: order_routes_1.default,
     },
 ];
 moduleRoutes.forEach((route) => router.use(route.path, route.route));

@@ -19,6 +19,13 @@ exports.default = {
     reset_pass_link: process.env.RESET_PASS_LINK,
     senderEmail: process.env.EMAIL,
     app_pass: process.env.APP_PASS,
+    // payment
+    payment_url: process.env.PAYMENT_URL,
+    store_id: process.env.STORE_ID,
+    signature_key: process.env.SIGNATURE_KEY,
+    base_url: process.env.BASE_URL,
+    client_url: process.env.CLIENT_URL,
+    payment_verify_url: process.env.PAYMENT_VERIFY_URL,
     // file uploading area
     cloudinary_cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
     cloudinary_api_key: process.env.CLOUDINARY_API_KEY,
