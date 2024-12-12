@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getCouponFromDB = exports.createCouponIntoDB = void 0;
+exports.deleteCouponIntoDB = exports.createCouponIntoDB = void 0;
 const client_1 = require("@prisma/client");
 const http_status_codes_1 = require("http-status-codes");
 const AppError_1 = __importDefault(require("../../error/AppError"));
@@ -53,31 +53,31 @@ const createCouponIntoDB = (user, payload) => __awaiter(void 0, void 0, void 0, 
     return result;
 });
 exports.createCouponIntoDB = createCouponIntoDB;
-const getCouponFromDB = (shopId) => __awaiter(void 0, void 0, void 0, function* () {
-    // Find shop data
+const deleteCouponIntoDB = (user) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    // find vendor data
+    const vendorData = yield prisma_1.default.user.findUniqueOrThrow({
+        where: {
+            email: user.email,
+            status: client_1.UserStatus.ACTIVE,
+        },
+        include: {
+            shop: true,
+        },
+    });
+    //   find shop data
     const shopData = yield prisma_1.default.shop.findUniqueOrThrow({
         where: {
-            id: shopId,
+            id: (_a = vendorData.shop) === null || _a === void 0 ? void 0 : _a.id,
+            isDeleted: false,
         },
     });
     // Fetch coupon data
-    const coupon = yield prisma_1.default.coupon.findUnique({
+    const result = yield prisma_1.default.coupon.delete({
         where: {
             shopId: shopData.id,
         },
-        include: {
-            shop: true, // Optional: Include shop data if needed
-        },
     });
-    // Ensure the coupon exists and is not deleted
-    if (!coupon || coupon.isDeleted) {
-        throw new AppError_1.default(http_status_codes_1.StatusCodes.NOT_FOUND, "No valid coupon found for this shop.");
-    }
-    // Validate the coupon's validFrom and validTo dates
-    const currentDate = new Date();
-    if (currentDate < coupon.validFrom || currentDate > coupon.validTo) {
-        throw new AppError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Coupon is not valid for the current date.");
-    }
-    return coupon;
+    return result;
 });
-exports.getCouponFromDB = getCouponFromDB;
+exports.deleteCouponIntoDB = deleteCouponIntoDB;

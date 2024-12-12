@@ -47,42 +47,34 @@ const createCouponIntoDB = async (user: JwtPayload, payload: any) => {
   return result;
 };
 
-const getCouponFromDB = async (shopId: string) => {
-  // Find shop data
+const deleteCouponIntoDB = async (user: JwtPayload) => {
+  // find vendor data
+  const vendorData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+      status: UserStatus.ACTIVE,
+    },
+    include: {
+      shop: true,
+    },
+  });
+
+  //   find shop data
   const shopData = await prisma.shop.findUniqueOrThrow({
     where: {
-      id: shopId,
+      id: vendorData.shop?.id,
+      isDeleted: false,
     },
   });
 
   // Fetch coupon data
-  const coupon = await prisma.coupon.findUnique({
+  const result = await prisma.coupon.delete({
     where: {
       shopId: shopData.id,
     },
-    include: {
-      shop: true, // Optional: Include shop data if needed
-    },
   });
 
-  // Ensure the coupon exists and is not deleted
-  if (!coupon || coupon.isDeleted) {
-    throw new AppError(
-      StatusCodes.NOT_FOUND,
-      "No valid coupon found for this shop."
-    );
-  }
-
-  // Validate the coupon's validFrom and validTo dates
-  const currentDate = new Date();
-  if (currentDate < coupon.validFrom || currentDate > coupon.validTo) {
-    throw new AppError(
-      StatusCodes.BAD_REQUEST,
-      "Coupon is not valid for the current date."
-    );
-  }
-
-  return coupon;
+  return result;
 };
 
-export { createCouponIntoDB, getCouponFromDB };
+export { createCouponIntoDB, deleteCouponIntoDB };

@@ -9,5 +9,5 @@ const auth_1 = __importDefault(require("../../middlewares/auth"));
 const coupon_controller_1 = require("./coupon.controller");
 const couponRoutes = (0, express_1.Router)();
 couponRoutes.post("/create-coupon", (0, auth_1.default)(client_1.UserRole.VENDOR), coupon_controller_1.createCoupon);
-couponRoutes.get("/:id", coupon_controller_1.getCoupon);
+couponRoutes.delete("/", (0, auth_1.default)(client_1.UserRole.VENDOR), coupon_controller_1.deleteCoupon);
 exports.default = couponRoutes;

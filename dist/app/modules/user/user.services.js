@@ -145,11 +145,8 @@ const getMyProfileFromDB = (user) => __awaiter(void 0, void 0, void 0, function*
             isDeleted: true,
             updatedAt: true,
             shop: {
-                select: {
-                    id: true,
-                    name: true,
-                    logo: true,
-                    status: true,
+                include: {
+                    coupon: true,
                 },
             },
         },

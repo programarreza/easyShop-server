@@ -88,6 +88,7 @@ const getSingleShopFromDB = (id) => __awaiter(void 0, void 0, void 0, function* 
         where: { id, isDeleted: false },
         include: {
             vendor: true,
+            coupon: true,
         },
     });
     return result;
