@@ -12,6 +12,7 @@ import {
   getAllProducts,
   getMyFlashSalesProducts,
   getMyProducts,
+  getRelevantProducts,
   getShopProducts,
   getSingleProduct,
   updateProduct,
@@ -52,6 +53,7 @@ productRoutes.get(
 );
 
 productRoutes.get("/flash-sales-products", getAllFlashSalesProducts);
+productRoutes.post("/relevant-products", getRelevantProducts);
 
 productRoutes.delete(
   "/my-flash-sales-products/:id",

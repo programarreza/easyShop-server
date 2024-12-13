@@ -57,7 +57,6 @@ model User {
 
   orders     Order[]
   payments   Payment[]
-  flashSales FlashSales[]
 }
 
 model Categories {
@@ -117,8 +116,6 @@ model Product {
 
   review     Review[]
   orderItems OrderItem[]
-
-  flashSales FlashSales[]
 }
 
 model Review {
@@ -215,19 +212,3 @@ model Payment {
   createdAt DateTime      @default(now())
 }
 
-model FlashSales {
-  id       String @id @default(uuid())
-  discount Float  @default(0)
-
-  vendorId String
-  vendor   User   @relation(fields: [vendorId], references: [id])
-
-  productId String
-  product   Product @relation(fields: [productId], references: [id])
-
-  startDate DateTime
-  endDate   DateTime
-
-  isDeleted Boolean  @default(false)
-  createdAt DateTime @default(now())
-}

@@ -12,6 +12,7 @@ import {
   getAllProductsFromDB,
   getMyFlashSalesProductsFromDB,
   getMyProductsFromDB,
+  getRelevantProductsFromDB,
   getShopProductsFromDB,
   getSingleProductFromDB,
   updateProductFromDB,
@@ -136,6 +137,17 @@ const getAllFlashSalesProducts = catchAsync(async (req, res) => {
   });
 });
 
+const getRelevantProducts = catchAsync(async (req, res) => {
+  const result = await getRelevantProductsFromDB(req.body);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Relevant products retrieved successfully!",
+    data: result,
+  });
+});
+
 const deleteMyFlashSalesProduct = catchAsync(async (req, res) => {
   const user = req.user;
   const { id } = req.params;
@@ -170,6 +182,7 @@ export {
   getAllProducts,
   getMyFlashSalesProducts,
   getMyProducts,
+  getRelevantProducts,
   getShopProducts,
   getSingleProduct,
   updateProduct,

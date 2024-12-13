@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateProduct = exports.getSingleProduct = exports.getShopProducts = exports.getMyProducts = exports.getAllProducts = exports.deleteProduct = exports.createProduct = void 0;
+exports.updateProduct = exports.getSingleProduct = exports.getShopProducts = exports.getMyProducts = exports.getMyFlashSalesProducts = exports.getAllProducts = exports.getAllFlashSalesProducts = exports.deleteProduct = exports.deleteMyFlashSalesProduct = exports.createProduct = exports.createFlashSalesProduct = void 0;
 const http_status_codes_1 = require("http-status-codes");
 const catchAsync_1 = __importDefault(require("../../shared/catchAsync"));
 const pick_1 = __importDefault(require("../../shared/pick"));
@@ -91,6 +91,49 @@ const updateProduct = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, 
     });
 }));
 exports.updateProduct = updateProduct;
+const createFlashSalesProduct = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield (0, product_services_1.createFlashSalesProductIntoDB)(req.body);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        success: true,
+        message: "flash sale created successfully!",
+        data: result,
+    });
+}));
+exports.createFlashSalesProduct = createFlashSalesProduct;
+const getMyFlashSalesProducts = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const result = yield (0, product_services_1.getMyFlashSalesProductsFromDB)(user);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        success: true,
+        message: "my flash sales products retrieved successfully!",
+        data: result,
+    });
+}));
+exports.getMyFlashSalesProducts = getMyFlashSalesProducts;
+const getAllFlashSalesProducts = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield (0, product_services_1.getAllFlashSalesProductsFromDB)();
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        success: true,
+        message: " flash sales products retrieved successfully!",
+        data: result,
+    });
+}));
+exports.getAllFlashSalesProducts = getAllFlashSalesProducts;
+const deleteMyFlashSalesProduct = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const { id } = req.params;
+    const result = yield (0, product_services_1.deleteMyFlashSalesProductsIntoDB)(user, id);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        success: true,
+        message: "my flash sales products retrieved successfully!",
+        data: result,
+    });
+}));
+exports.deleteMyFlashSalesProduct = deleteMyFlashSalesProduct;
 const deleteProduct = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { id } = req.params;
     const result = yield (0, product_services_1.deleteProductIntoDB)(id);

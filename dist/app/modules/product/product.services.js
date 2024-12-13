@@ -23,7 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateProductFromDB = exports.getSingleProductFromDB = exports.getShopProductsFromDB = exports.getMyProductsFromDB = exports.getAllProductsFromDB = exports.deleteProductIntoDB = exports.createProductIntoDB = void 0;
+exports.updateProductFromDB = exports.getSingleProductFromDB = exports.getShopProductsFromDB = exports.getMyProductsFromDB = exports.getMyFlashSalesProductsFromDB = exports.getAllProductsFromDB = exports.getAllFlashSalesProductsFromDB = exports.deleteProductIntoDB = exports.deleteMyFlashSalesProductsIntoDB = exports.createProductIntoDB = exports.createFlashSalesProductIntoDB = void 0;
 const client_1 = require("@prisma/client");
 const http_status_codes_1 = require("http-status-codes");
 const AppError_1 = __importDefault(require("../../error/AppError"));
@@ -97,7 +97,7 @@ const getAllProductsFromDB = (filters, options) => __awaiter(void 0, void 0, voi
     });
     const whereConditions = andConditions.length > 0 ? { AND: andConditions } : {};
     const result = yield prisma_1.default.product.findMany({
-        where: Object.assign(Object.assign({}, whereConditions), { isDeleted: false }),
+        where: Object.assign(Object.assign({}, whereConditions), { isDeleted: false, isFlashSales: false }),
         skip,
         take: limit,
         orderBy: sortBy && sortOrder ? { [sortBy]: sortOrder } : { createdAt: "desc" },
@@ -111,7 +111,7 @@ const getAllProductsFromDB = (filters, options) => __awaiter(void 0, void 0, voi
         },
     });
     const total = yield prisma_1.default.product.count({
-        where: whereConditions,
+        where: Object.assign(Object.assign({}, whereConditions), { isDeleted: false, isFlashSales: false }),
     });
     return {
         meta: {
@@ -283,3 +283,84 @@ const deleteProductIntoDB = (id) => __awaiter(void 0, void 0, void 0, function* 
     return result;
 });
 exports.deleteProductIntoDB = deleteProductIntoDB;
+// create flash sales product
+const createFlashSalesProductIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const { startDate, endDate, discount } = payload;
+    // find product
+    const productData = yield prisma_1.default.product.findUniqueOrThrow({
+        where: {
+            id: payload.id,
+            isDeleted: false,
+        },
+    });
+    // update ==> startDate, endDate, discount, isFlashSales=true
+    const result = yield prisma_1.default.product.update({
+        where: { id: productData.id },
+        data: { startDate, endDate, discount, isFlashSales: true },
+    });
+    return result;
+});
+exports.createFlashSalesProductIntoDB = createFlashSalesProductIntoDB;
+const getMyFlashSalesProductsFromDB = (user) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const vendorData = yield prisma_1.default.user.findUniqueOrThrow({
+        where: {
+            email: user.email,
+            status: client_1.UserStatus.ACTIVE,
+        },
+        include: {
+            shop: true,
+        },
+    });
+    // find my flash sales products
+    const result = yield prisma_1.default.product.findMany({
+        where: {
+            shopId: (_a = vendorData.shop) === null || _a === void 0 ? void 0 : _a.id,
+            isDeleted: false,
+            isFlashSales: true,
+        },
+        include: {
+            categories: true,
+        },
+    });
+    return result;
+});
+exports.getMyFlashSalesProductsFromDB = getMyFlashSalesProductsFromDB;
+const getAllFlashSalesProductsFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
+    // find all flash sales products
+    const result = yield prisma_1.default.product.findMany({
+        where: {
+            isDeleted: false,
+            isFlashSales: true,
+        },
+        include: {
+            categories: true,
+        },
+    });
+    return result;
+});
+exports.getAllFlashSalesProductsFromDB = getAllFlashSalesProductsFromDB;
+const deleteMyFlashSalesProductsIntoDB = (user, productId) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const vendorData = yield prisma_1.default.user.findUniqueOrThrow({
+        where: {
+            email: user.email,
+            status: client_1.UserStatus.ACTIVE,
+        },
+        include: {
+            shop: true,
+        },
+    });
+    // delete my flash sales products
+    const result = yield prisma_1.default.product.update({
+        where: {
+            shopId: (_a = vendorData.shop) === null || _a === void 0 ? void 0 : _a.id,
+            id: productId,
+            isDeleted: false,
+            isFlashSales: true,
+        },
+        data: { isFlashSales: false, discount: 0 },
+    });
+    return result;
+});
+exports.deleteMyFlashSalesProductsIntoDB = deleteMyFlashSalesProductsIntoDB;

@@ -17,6 +17,11 @@ productRoutes.post("/create-product", (0, auth_1.default)(client_1.UserRole.VEND
 }, (0, validateRequest_1.default)(product_validation_1.createProductValidationSchema), product_controller_1.createProduct);
 productRoutes.get("/", product_controller_1.getAllProducts);
 productRoutes.get("/my-products", (0, auth_1.default)(client_1.UserRole.VENDOR), product_controller_1.getMyProducts);
+// Flash sales products
+productRoutes.post("/flash-sales-create", (0, auth_1.default)(client_1.UserRole.VENDOR), product_controller_1.createFlashSalesProduct);
+productRoutes.get("/my-flash-sales-products", (0, auth_1.default)(client_1.UserRole.VENDOR), product_controller_1.getMyFlashSalesProducts);
+productRoutes.get("/flash-sales-products", product_controller_1.getAllFlashSalesProducts);
+productRoutes.delete("/my-flash-sales-products/:id", (0, auth_1.default)(client_1.UserRole.VENDOR), product_controller_1.deleteMyFlashSalesProduct);
 productRoutes.delete("/:id", product_controller_1.deleteProduct);
 productRoutes.get("/:id/shop-product", product_controller_1.getShopProducts);
 productRoutes.get("/:id", product_controller_1.getSingleProduct);

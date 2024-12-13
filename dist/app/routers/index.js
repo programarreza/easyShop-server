@@ -13,7 +13,6 @@ const product_routes_1 = __importDefault(require("../modules/product/product.rou
 const review_routes_1 = __importDefault(require("../modules/review/review.routes"));
 const shop_routes_1 = __importDefault(require("../modules/shop/shop.routes"));
 const user_routes_1 = __importDefault(require("../modules/user/user.routes"));
-const flashSales_routes_1 = __importDefault(require("../modules/flashSales/flashSales.routes"));
 const router = (0, express_1.Router)();
 const moduleRoutes = [
     {
@@ -51,10 +50,6 @@ const moduleRoutes = [
     {
         path: "/orders",
         route: order_routes_1.default,
-    },
-    {
-        path: "/flash-sales",
-        route: flashSales_routes_1.default,
     },
 ];
 moduleRoutes.forEach((route) => router.use(route.path, route.route));
