@@ -8,6 +8,7 @@ import {
   createProduct,
   deleteProduct,
   getAllProducts,
+  getMyFlashSalesProducts,
   getMyProducts,
   getShopProducts,
   getSingleProduct,
@@ -35,6 +36,19 @@ productRoutes.post(
 productRoutes.get("/", getAllProducts);
 productRoutes.get("/my-products", auth(UserRole.VENDOR), getMyProducts);
 
+// Flash sales products
+productRoutes.post(
+  "/flash-sales-create",
+  auth(UserRole.VENDOR),
+  createFlashSalesProduct
+);
+
+productRoutes.get(
+  "/my-flash-sales-products",
+  auth(UserRole.VENDOR),
+  getMyFlashSalesProducts
+);
+
 productRoutes.delete("/:id", deleteProduct);
 
 productRoutes.get("/:id/shop-product", getShopProducts);
@@ -53,10 +67,6 @@ productRoutes.patch(
   updateProduct
 );
 
-productRoutes.post(
-  "/flash-sales-create",
-  auth(UserRole.VENDOR),
-  createFlashSalesProduct
-);
+
 
 export default productRoutes;

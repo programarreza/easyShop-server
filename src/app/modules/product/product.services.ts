@@ -93,7 +93,7 @@ const getAllProductsFromDB = async (
     andConditions.length > 0 ? { AND: andConditions } : {};
 
   const result = await prisma.product.findMany({
-    where: { ...whereConditions, isDeleted: false },
+    where: { ...whereConditions, isDeleted: false, isFlashSales: false },
     skip,
     take: limit,
     orderBy:
@@ -109,7 +109,7 @@ const getAllProductsFromDB = async (
   });
 
   const total = await prisma.product.count({
-    where: whereConditions,
+    where: { ...whereConditions, isDeleted: false, isFlashSales: false },
   });
 
   return {
@@ -328,11 +328,41 @@ const createFlashSalesProductIntoDB = async (payload: Partial<Product>) => {
   return result;
 };
 
+const getMyFlashSalesProductsFromDB = async (user: JwtPayload) => {
+  console.log({user})
+  const vendorData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+      status: UserStatus.ACTIVE,
+    },
+    include: {
+      shop: true,
+    },
+  });
+
+  console.log({vendorData})
+
+  // find my flash sales products
+  const result = await prisma.product.findMany({
+    where: {
+      shopId: vendorData.shop?.id,
+      isDeleted: false,
+      isFlashSales: true,
+    },
+    include: {
+      categories: true,
+    },
+  });
+
+  return result;
+};
+
 export {
   createFlashSalesProductIntoDB,
   createProductIntoDB,
   deleteProductIntoDB,
   getAllProductsFromDB,
+  getMyFlashSalesProductsFromDB,
   getMyProductsFromDB,
   getShopProductsFromDB,
   getSingleProductFromDB,

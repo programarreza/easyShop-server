@@ -8,7 +8,6 @@ import productRoutes from "../modules/product/product.routes";
 import reviewRoutes from "../modules/review/review.routes";
 import shopsRoutes from "../modules/shop/shop.routes";
 import userRoutes from "../modules/user/user.routes";
-import flashSalesRoutes from "../modules/flashSales/flashSales.routes";
 const router = Router();
 
 const moduleRoutes = [
@@ -47,10 +46,6 @@ const moduleRoutes = [
   {
     path: "/orders",
     route: orderRoutes,
-  },
-  {
-    path: "/flash-sales",
-    route: flashSalesRoutes,
   },
 ];
 

@@ -8,6 +8,7 @@ import {
   createProductIntoDB,
   deleteProductIntoDB,
   getAllProductsFromDB,
+  getMyFlashSalesProductsFromDB,
   getMyProductsFromDB,
   getShopProductsFromDB,
   getSingleProductFromDB,
@@ -110,6 +111,19 @@ const createFlashSalesProduct = catchAsync(async (req, res) => {
   });
 });
 
+const getMyFlashSalesProducts = catchAsync(async (req, res) => {
+  const user = req.user;
+  console.log({user})
+  const result = await getMyFlashSalesProductsFromDB(user);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "my flash sales products retrieved successfully!",
+    data: result,
+  });
+});
+
 const deleteProduct = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result = await deleteProductIntoDB(id);
@@ -131,4 +145,5 @@ export {
   getShopProducts,
   getSingleProduct,
   updateProduct,
+  getMyFlashSalesProducts
 };
