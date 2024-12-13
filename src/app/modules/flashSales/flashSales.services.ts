@@ -1,9 +1,18 @@
+import { UserStatus } from "@prisma/client";
 import { StatusCodes } from "http-status-codes";
+import { JwtPayload } from "jsonwebtoken";
 import AppError from "../../error/AppError";
 import prisma from "../../shared/prisma";
 
-const createFlashSalesIntoDB = async (payload: any) => {
+const createFlashSalesIntoDB = async (user: JwtPayload, payload: any) => {
   const { productId, startDate, endDate, discount } = payload;
+
+  const vendorData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+      status: UserStatus.ACTIVE,
+    },
+  });
 
   const isExist = await prisma.flashSales.findMany({
     where: {
@@ -31,14 +40,6 @@ const createFlashSalesIntoDB = async (payload: any) => {
   const end = new Date(endDate);
   const now = new Date();
 
-  if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-    throw new Error("Invalid startDate or endDate.");
-  }
-
-  if (start <= now) {
-    throw new Error("startDate must be in the future.");
-  }
-
   if (end <= start) {
     throw new Error("endDate must be after startDate.");
   }
@@ -62,6 +63,7 @@ const createFlashSalesIntoDB = async (payload: any) => {
   // Create the flash sale
   const flashSale = await prisma.flashSales.create({
     data: {
+      vendorId: vendorData?.id,
       productId,
       discount,
       startDate,
@@ -98,4 +100,26 @@ const getAllFlashSalesFromDB = async () => {
   return flashSales;
 };
 
-export { createFlashSalesIntoDB, getAllFlashSalesFromDB };
+const getMyFlashSalesProductsFromDB = async (user: JwtPayload) => {
+  const vendorData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  const result = await prisma.flashSales.findMany({
+    where: {
+      vendorId: vendorData.id,
+      isDeleted: false,
+    },
+  });
+
+  return result;
+};
+
+export {
+  createFlashSalesIntoDB,
+  getAllFlashSalesFromDB,
+  getMyFlashSalesProductsFromDB,
+};

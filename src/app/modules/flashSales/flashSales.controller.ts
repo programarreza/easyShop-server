@@ -4,10 +4,12 @@ import sendResponse from "../../shared/sendResponse";
 import {
   createFlashSalesIntoDB,
   getAllFlashSalesFromDB,
+  getMyFlashSalesProductsFromDB,
 } from "./flashSales.services";
 
 const createFlashSales = catchAsync(async (req, res) => {
-  const result = await createFlashSalesIntoDB(req.body);
+  const user = req.user;
+  const result = await createFlashSalesIntoDB(user, req.body);
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
@@ -28,4 +30,16 @@ const getAllFlashSales = catchAsync(async (req, res) => {
   });
 });
 
-export { createFlashSales, getAllFlashSales };
+const getMyFlashSalesProducts = catchAsync(async (req, res) => {
+  const user = req.user;
+  const result = await getMyFlashSalesProductsFromDB(user);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "My flash sales retrieved successfully!",
+    data: result,
+  });
+});
+
+export { createFlashSales, getAllFlashSales, getMyFlashSalesProducts };

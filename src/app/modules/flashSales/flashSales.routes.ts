@@ -7,5 +7,6 @@ const flashSalesRoutes = Router();
 
 flashSalesRoutes.post("/create", auth(UserRole.VENDOR), createFlashSales);
 flashSalesRoutes.get("/", getAllFlashSales);
+flashSalesRoutes.get("/my-flash-sales-products", getAllFlashSales);
 
 export default flashSalesRoutes;
