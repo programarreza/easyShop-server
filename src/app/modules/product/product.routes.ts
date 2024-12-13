@@ -4,6 +4,7 @@ import { multerUpload } from "../../config/multer.config";
 import auth from "../../middlewares/auth";
 import validateRequest from "../../middlewares/validateRequest";
 import {
+  createFlashSalesProduct,
   createProduct,
   deleteProduct,
   getAllProducts,
@@ -50,6 +51,12 @@ productRoutes.patch(
   },
   validateRequest(updateProductValidationSchema),
   updateProduct
+);
+
+productRoutes.post(
+  "/flash-sales-create",
+  auth(UserRole.VENDOR),
+  createFlashSalesProduct
 );
 
 export default productRoutes;

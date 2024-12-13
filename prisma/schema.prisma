@@ -107,6 +107,10 @@ model Product {
   discount       Int    @default(0)
   rating         Int    @default(0)
 
+  startDate    DateTime?
+  endDate      DateTime?
+  isFlashSales Boolean   @default(false)
+
   isDeleted Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

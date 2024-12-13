@@ -4,6 +4,7 @@ import pick from "../../shared/pick";
 import sendResponse from "../../shared/sendResponse";
 import { productFilterableFields } from "./product.constant";
 import {
+  createFlashSalesProductIntoDB,
   createProductIntoDB,
   deleteProductIntoDB,
   getAllProductsFromDB,
@@ -98,6 +99,17 @@ const updateProduct = catchAsync(async (req, res) => {
   });
 });
 
+const createFlashSalesProduct = catchAsync(async (req, res) => {
+  const result = await createFlashSalesProductIntoDB(req.body);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "flash sale created successfully!",
+    data: result,
+  });
+});
+
 const deleteProduct = catchAsync(async (req, res) => {
   const { id } = req.params;
   const result = await deleteProductIntoDB(id);
@@ -111,6 +123,7 @@ const deleteProduct = catchAsync(async (req, res) => {
 });
 
 export {
+  createFlashSalesProduct,
   createProduct,
   deleteProduct,
   getAllProducts,

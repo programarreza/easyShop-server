@@ -308,7 +308,28 @@ const deleteProductIntoDB = async (id: string) => {
   return result;
 };
 
+// create flash sales product
+const createFlashSalesProductIntoDB = async (payload: Partial<Product>) => {
+  const { startDate, endDate, discount } = payload;
+  // find product
+  const productData = await prisma.product.findUniqueOrThrow({
+    where: {
+      id: payload.id,
+      isDeleted: false,
+    },
+  });
+
+  // update ==> startDate, endDate, discount, isFlashSales=true
+  const result = await prisma.product.update({
+    where: { id: productData.id },
+    data: { startDate, endDate, discount, isFlashSales: true },
+  });
+
+  return result;
+};
+
 export {
+  createFlashSalesProductIntoDB,
   createProductIntoDB,
   deleteProductIntoDB,
   getAllProductsFromDB,

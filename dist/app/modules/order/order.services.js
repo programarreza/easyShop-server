@@ -12,11 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.createOrderIntoDB = void 0;
+exports.failedOrderIntoDB = exports.createOrderIntoDB = exports.confirmOrderIntoDB = void 0;
 // services
 const client_1 = require("@prisma/client");
+const http_status_codes_1 = require("http-status-codes");
 const uuid_1 = require("uuid");
 const payment_utils_1 = require("../../../utils/payment.utils");
+const AppError_1 = __importDefault(require("../../error/AppError"));
 const prisma_1 = __importDefault(require("../../shared/prisma"));
 const createOrderIntoDB = (user, payload) => __awaiter(void 0, void 0, void 0, function* () {
     const transactionId = (0, uuid_1.v4)();
@@ -94,3 +96,72 @@ const createOrderIntoDB = (user, payload) => __awaiter(void 0, void 0, void 0, f
     return paymentLink;
 });
 exports.createOrderIntoDB = createOrderIntoDB;
+const confirmOrderIntoDB = (transactionId, status) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!transactionId) {
+        throw new AppError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Invalid notification.");
+    }
+    // verify payment
+    const verifyPaymentResponse = yield (0, payment_utils_1.verifyPayment)(transactionId);
+    const payments = yield prisma_1.default.payment.findMany({
+        where: {
+            transactionId,
+        },
+    });
+    if (payments.length === 0) {
+        throw new AppError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Payment not found.");
+    }
+    if (verifyPaymentResponse &&
+        verifyPaymentResponse.pay_status === "Successful") {
+        const payment = payments[0]; // Assuming only one payment is relevant
+        const result = yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
+            // Update payment status
+            const paymentData = yield tx.payment.update({
+                where: { id: payment.id },
+                data: {
+                    status: status === "success" ? client_1.PaymentStatus.SUCCESS : client_1.PaymentStatus.FAILED,
+                },
+            });
+            // Update order status if payment is successful
+            if (status === "success") {
+                yield tx.order.update({
+                    where: { id: payment.orderId },
+                    data: { status: client_1.OrderStatus.COMPLETED },
+                });
+            }
+            return paymentData;
+        }));
+        return result;
+    }
+});
+exports.confirmOrderIntoDB = confirmOrderIntoDB;
+const failedOrderIntoDB = (transactionId) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!transactionId) {
+        throw new AppError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Invalid notification.");
+    }
+    const payments = yield prisma_1.default.payment.findMany({
+        where: {
+            transactionId,
+        },
+    });
+    if (payments.length === 0) {
+        throw new AppError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Payment not found.");
+    }
+    const payment = payments[0]; // Assuming only one payment is relevant
+    const result = yield prisma_1.default.$transaction((tx) => __awaiter(void 0, void 0, void 0, function* () {
+        // Update payment status
+        const paymentData = yield tx.payment.update({
+            where: { id: payment.id },
+            data: {
+                status: client_1.PaymentStatus.FAILED,
+            },
+        });
+        // Update order status
+        yield tx.order.update({
+            where: { id: payment.orderId },
+            data: { status: client_1.OrderStatus.CANCELED },
+        });
+        return paymentData;
+    }));
+    return result;
+});
+exports.failedOrderIntoDB = failedOrderIntoDB;
