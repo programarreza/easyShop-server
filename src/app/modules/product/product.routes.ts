@@ -8,6 +8,7 @@ import {
   createProduct,
   deleteMyFlashSalesProduct,
   deleteProduct,
+  getAllFlashSalesProducts,
   getAllProducts,
   getMyFlashSalesProducts,
   getMyProducts,
@@ -49,6 +50,8 @@ productRoutes.get(
   auth(UserRole.VENDOR),
   getMyFlashSalesProducts
 );
+
+productRoutes.get("/flash-sales-products", getAllFlashSalesProducts);
 
 productRoutes.delete(
   "/my-flash-sales-products/:id",

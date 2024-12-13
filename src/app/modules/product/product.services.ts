@@ -354,6 +354,21 @@ const getMyFlashSalesProductsFromDB = async (user: JwtPayload) => {
   return result;
 };
 
+const getAllFlashSalesProductsFromDB = async () => {
+  // find all flash sales products
+  const result = await prisma.product.findMany({
+    where: {
+      isDeleted: false,
+      isFlashSales: true,
+    },
+    include: {
+      categories: true,
+    },
+  });
+
+  return result;
+};
+
 const deleteMyFlashSalesProductsIntoDB = async (
   user: JwtPayload,
   productId: string
@@ -385,12 +400,13 @@ const deleteMyFlashSalesProductsIntoDB = async (
 export {
   createFlashSalesProductIntoDB,
   createProductIntoDB,
+  deleteMyFlashSalesProductsIntoDB,
   deleteProductIntoDB,
+  getAllFlashSalesProductsFromDB,
   getAllProductsFromDB,
   getMyFlashSalesProductsFromDB,
   getMyProductsFromDB,
   getShopProductsFromDB,
   getSingleProductFromDB,
   updateProductFromDB,
-  deleteMyFlashSalesProductsIntoDB
 };
