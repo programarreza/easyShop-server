@@ -3,6 +3,7 @@ import catchAsync from "../../shared/catchAsync";
 import sendResponse from "../../shared/sendResponse";
 import {
   createFlashSalesIntoDB,
+  deleteMyFlashSalesProductIntoDB,
   getAllFlashSalesFromDB,
   getMyFlashSalesProductsFromDB,
 } from "./flashSales.services";
@@ -42,4 +43,22 @@ const getMyFlashSalesProducts = catchAsync(async (req, res) => {
   });
 });
 
-export { createFlashSales, getAllFlashSales, getMyFlashSalesProducts };
+const deleteMyFlashSalesProduct = catchAsync(async (req, res) => {
+  const user = req.user;
+  const { id } = req.params;
+  const result = await deleteMyFlashSalesProductIntoDB(user, id);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "My flash sales deleted successfully!",
+    data: result,
+  });
+});
+
+export {
+  createFlashSales,
+  deleteMyFlashSalesProduct,
+  getAllFlashSales,
+  getMyFlashSalesProducts,
+};

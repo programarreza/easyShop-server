@@ -113,6 +113,34 @@ const getMyFlashSalesProductsFromDB = async (user: JwtPayload) => {
       vendorId: vendorData.id,
       isDeleted: false,
     },
+    include: {
+      product: true,
+    },
+  });
+
+  return result;
+};
+
+const deleteMyFlashSalesProductIntoDB = async (
+  user: JwtPayload,
+  id: string
+) => {
+  const vendorData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  const result = await prisma.flashSales.update({
+    where: {
+      vendorId: vendorData.id,
+      id,
+      isDeleted: false,
+    },
+    data: {
+      isDeleted: true,
+    },
   });
 
   return result;
@@ -120,6 +148,7 @@ const getMyFlashSalesProductsFromDB = async (user: JwtPayload) => {
 
 export {
   createFlashSalesIntoDB,
+  deleteMyFlashSalesProductIntoDB,
   getAllFlashSalesFromDB,
   getMyFlashSalesProductsFromDB,
 };
