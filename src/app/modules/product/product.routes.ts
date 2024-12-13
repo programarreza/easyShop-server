@@ -6,6 +6,7 @@ import validateRequest from "../../middlewares/validateRequest";
 import {
   createFlashSalesProduct,
   createProduct,
+  deleteMyFlashSalesProduct,
   deleteProduct,
   getAllProducts,
   getMyFlashSalesProducts,
@@ -49,6 +50,12 @@ productRoutes.get(
   getMyFlashSalesProducts
 );
 
+productRoutes.delete(
+  "/my-flash-sales-products/:id",
+  auth(UserRole.VENDOR),
+  deleteMyFlashSalesProduct
+);
+
 productRoutes.delete("/:id", deleteProduct);
 
 productRoutes.get("/:id/shop-product", getShopProducts);
@@ -66,7 +73,5 @@ productRoutes.patch(
   validateRequest(updateProductValidationSchema),
   updateProduct
 );
-
-
 
 export default productRoutes;

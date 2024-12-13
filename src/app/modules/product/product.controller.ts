@@ -6,6 +6,7 @@ import { productFilterableFields } from "./product.constant";
 import {
   createFlashSalesProductIntoDB,
   createProductIntoDB,
+  deleteMyFlashSalesProductsIntoDB,
   deleteProductIntoDB,
   getAllProductsFromDB,
   getMyFlashSalesProductsFromDB,
@@ -113,8 +114,20 @@ const createFlashSalesProduct = catchAsync(async (req, res) => {
 
 const getMyFlashSalesProducts = catchAsync(async (req, res) => {
   const user = req.user;
-  console.log({user})
   const result = await getMyFlashSalesProductsFromDB(user);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "my flash sales products retrieved successfully!",
+    data: result,
+  });
+});
+
+const deleteMyFlashSalesProduct = catchAsync(async (req, res) => {
+  const user = req.user;
+  const {id} = req.params;
+  const result = await deleteMyFlashSalesProductsIntoDB(user, id);
 
   sendResponse(res, {
     statusCode: StatusCodes.OK,
@@ -145,5 +158,6 @@ export {
   getShopProducts,
   getSingleProduct,
   updateProduct,
-  getMyFlashSalesProducts
+  getMyFlashSalesProducts,
+  deleteMyFlashSalesProduct
 };
