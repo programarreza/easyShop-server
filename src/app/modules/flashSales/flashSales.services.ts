@@ -72,4 +72,30 @@ const createFlashSalesIntoDB = async (payload: any) => {
   return flashSale;
 };
 
-export { createFlashSalesIntoDB };
+const getAllFlashSalesFromDB = async () => {
+  const currentDate = new Date();
+
+  // Fetch flash sales that are currently active
+  const flashSales = await prisma.flashSales.findMany({
+    where: {
+      startDate: {
+        lte: currentDate, // Flash sale has started
+      },
+      endDate: {
+        gte: currentDate, // Flash sale has not ended
+      },
+      isDeleted: false, // Optional: Exclude soft-deleted entries
+    },
+    include: {
+      product: true, // Include associated product details
+    },
+  });
+
+  if (!flashSales.length) {
+    throw new Error("No active flash sales found.");
+  }
+
+  return flashSales;
+};
+
+export { createFlashSalesIntoDB, getAllFlashSalesFromDB };
