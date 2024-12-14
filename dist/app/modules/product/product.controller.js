@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateProduct = exports.getSingleProduct = exports.getShopProducts = exports.getMyProducts = exports.getMyFlashSalesProducts = exports.getAllProducts = exports.getAllFlashSalesProducts = exports.deleteProduct = exports.deleteMyFlashSalesProduct = exports.createProduct = exports.createFlashSalesProduct = void 0;
+exports.updateProduct = exports.getSingleProduct = exports.getShopProducts = exports.getRelevantProducts = exports.getMyProducts = exports.getMyFlashSalesProducts = exports.getAllProducts = exports.getAllFlashSalesProducts = exports.deleteProduct = exports.deleteMyFlashSalesProduct = exports.createProduct = exports.createFlashSalesProduct = void 0;
 const http_status_codes_1 = require("http-status-codes");
 const catchAsync_1 = __importDefault(require("../../shared/catchAsync"));
 const pick_1 = __importDefault(require("../../shared/pick"));
@@ -122,6 +122,16 @@ const getAllFlashSalesProducts = (0, catchAsync_1.default)((req, res) => __await
     });
 }));
 exports.getAllFlashSalesProducts = getAllFlashSalesProducts;
+const getRelevantProducts = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield (0, product_services_1.getRelevantProductsFromDB)(req.body);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        success: true,
+        message: "Relevant products retrieved successfully!",
+        data: result,
+    });
+}));
+exports.getRelevantProducts = getRelevantProducts;
 const deleteMyFlashSalesProduct = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
     const { id } = req.params;

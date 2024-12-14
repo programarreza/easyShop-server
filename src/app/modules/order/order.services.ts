@@ -1,4 +1,3 @@
-// services
 import { OrderStatus, PaymentStatus, UserStatus } from "@prisma/client";
 import { StatusCodes } from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
@@ -8,7 +7,7 @@ import AppError from "../../error/AppError";
 import prisma from "../../shared/prisma";
 
 const createOrderIntoDB = async (user: JwtPayload, payload: any) => {
-  const transactionId = uuidv4();
+  const transactionId = uuidv4().slice(0, 8);
   const { shopId, items, totalPrice, discountedAmount, discount, grandTotal } =
     payload;
 
@@ -182,4 +181,131 @@ const failedOrderIntoDB = async (transactionId: string) => {
   return result;
 };
 
-export { confirmOrderIntoDB, createOrderIntoDB, failedOrderIntoDB };
+const getCustomerOrderHistoryFromDB = async (user: JwtPayload) => {
+  // find customer data
+  const customerData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  // find order history
+  const result = await prisma.order.findMany({
+    where: {
+      customerId: customerData.id,
+    },
+
+    include: {
+      // order items
+      orderItems: {
+        include: {
+          product: {
+            select: {
+              name: true,
+              price: true,
+              images: true,
+            },
+          },
+        },
+      },
+
+      // shop
+      shop: {
+        select: {
+          name: true,
+          logo: true,
+        },
+      },
+
+      // payments
+      payments: {
+        select: {
+          amount: true,
+          status: true,
+          transactionId: true,
+        },
+      },
+    },
+
+    // orderby
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return result;
+};
+
+const getMyCustomersOrdersHistoryFromDB = async (user: JwtPayload) => {
+  // find vendor data
+  const vendorData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+      status: UserStatus.ACTIVE,
+    },
+    include: {
+      shop: true,
+    },
+  });
+
+  const shopData = await prisma.shop.findUniqueOrThrow({
+    where: {
+      vendorId: vendorData.id,
+    },
+  });
+
+  // find vendor order history
+  const result = await prisma.order.findMany({
+    where: {
+      shopId: shopData.id,
+    },
+
+    include: {
+      // order items
+      orderItems: {
+        include: {
+          product: {
+            select: {
+              name: true,
+              price: true,
+              images: true,
+            },
+          },
+        },
+      },
+
+      // shop
+      shop: {
+        select: {
+          name: true,
+          logo: true,
+        },
+      },
+
+      // payments
+      payments: {
+        select: {
+          amount: true,
+          status: true,
+          transactionId: true,
+        },
+      },
+    },
+
+    // orderby
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return result;
+};
+
+export {
+  confirmOrderIntoDB,
+  createOrderIntoDB,
+  failedOrderIntoDB,
+  getCustomerOrderHistoryFromDB,
+  getMyCustomersOrdersHistoryFromDB
+};

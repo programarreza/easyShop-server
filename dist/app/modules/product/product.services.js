@@ -23,7 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateProductFromDB = exports.getSingleProductFromDB = exports.getShopProductsFromDB = exports.getMyProductsFromDB = exports.getMyFlashSalesProductsFromDB = exports.getAllProductsFromDB = exports.getAllFlashSalesProductsFromDB = exports.deleteProductIntoDB = exports.deleteMyFlashSalesProductsIntoDB = exports.createProductIntoDB = exports.createFlashSalesProductIntoDB = void 0;
+exports.updateProductFromDB = exports.getSingleProductFromDB = exports.getShopProductsFromDB = exports.getRelevantProductsFromDB = exports.getMyProductsFromDB = exports.getMyFlashSalesProductsFromDB = exports.getAllProductsFromDB = exports.getAllFlashSalesProductsFromDB = exports.deleteProductIntoDB = exports.deleteMyFlashSalesProductsIntoDB = exports.createProductIntoDB = exports.createFlashSalesProductIntoDB = void 0;
 const client_1 = require("@prisma/client");
 const http_status_codes_1 = require("http-status-codes");
 const AppError_1 = __importDefault(require("../../error/AppError"));
@@ -340,6 +340,21 @@ const getAllFlashSalesProductsFromDB = () => __awaiter(void 0, void 0, void 0, f
     return result;
 });
 exports.getAllFlashSalesProductsFromDB = getAllFlashSalesProductsFromDB;
+const getRelevantProductsFromDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield prisma_1.default.product.findMany({
+        where: {
+            categoryId: {
+                in: payload.categories,
+            },
+            isDeleted: false,
+        },
+        include: {
+            categories: true,
+        },
+    });
+    return result;
+});
+exports.getRelevantProductsFromDB = getRelevantProductsFromDB;
 const deleteMyFlashSalesProductsIntoDB = (user, productId) => __awaiter(void 0, void 0, void 0, function* () {
     var _a;
     const vendorData = yield prisma_1.default.user.findUniqueOrThrow({

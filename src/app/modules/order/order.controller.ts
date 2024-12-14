@@ -7,9 +7,10 @@ import {
   confirmOrderIntoDB,
   createOrderIntoDB,
   failedOrderIntoDB,
+  getCustomerOrderHistoryFromDB,
+  getMyCustomersOrdersHistoryFromDB,
 } from "./order.services";
 
-// controller
 const createOrder = catchAsync(async (req, res) => {
   const user = req.user;
   const result = await createOrderIntoDB(user, req.body);
@@ -57,4 +58,34 @@ const failedOrder = catchAsync(async (req, res) => {
   }
 });
 
-export { createOrder, failedOrder, paymentConfirmation };
+const getCustomerOrderHistory = catchAsync(async (req, res) => {
+  const user = req.user;
+  const result = await getCustomerOrderHistoryFromDB(user);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Orders history retrieved successfully!",
+    data: result,
+  });
+});
+
+const getMyCustomersOrdersHistory = catchAsync(async (req, res) => {
+  const user = req.user;
+  const result = await getMyCustomersOrdersHistoryFromDB(user);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "My customers orders history retrieved successfully!",
+    data: result,
+  });
+});
+
+export {
+  createOrder,
+  failedOrder,
+  getCustomerOrderHistory,
+  getMyCustomersOrdersHistory,
+  paymentConfirmation,
+};
