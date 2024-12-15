@@ -7,6 +7,7 @@ import {
   confirmOrderIntoDB,
   createOrderIntoDB,
   failedOrderIntoDB,
+  getAllShopsOrdersHistoryFromDB,
   getCustomerOrderHistoryFromDB,
   getMyCustomersOrdersHistoryFromDB,
 } from "./order.services";
@@ -82,10 +83,22 @@ const getMyCustomersOrdersHistory = catchAsync(async (req, res) => {
   });
 });
 
+const getAllShopsOrdersHistory = catchAsync(async (req, res) => {
+  const result = await getAllShopsOrdersHistoryFromDB();
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "All shops orders history retrieved successfully!",
+    data: result,
+  });
+});
+
 export {
   createOrder,
   failedOrder,
   getCustomerOrderHistory,
   getMyCustomersOrdersHistory,
   paymentConfirmation,
+  getAllShopsOrdersHistory
 };

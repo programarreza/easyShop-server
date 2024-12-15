@@ -302,10 +302,76 @@ const getMyCustomersOrdersHistoryFromDB = async (user: JwtPayload) => {
   return result;
 };
 
+const getAllShopsOrdersHistoryFromDB = async () => {
+  // find vendor data
+  // const vendorData = await prisma.user.findUniqueOrThrow({
+  //   where: {
+  //     email: user.email,
+  //     status: UserStatus.ACTIVE,
+  //   },
+  //   include: {
+  //     shop: true,
+  //   },
+  // });
+
+  // const shopData = await prisma.shop.findUniqueOrThrow({
+  //   where: {
+  //     vendorId: vendorData.id,
+  //   },
+  // });
+
+  // find vendor order history
+  const result = await prisma.order.findMany({
+    // where: {
+    //   shopId: shopData.id,
+    // },
+
+    include: {
+      // order items
+      orderItems: {
+        include: {
+          product: {
+            select: {
+              name: true,
+              price: true,
+              images: true,
+            },
+          },
+        },
+      },
+
+      // shop
+      shop: {
+        select: {
+          name: true,
+          logo: true,
+        },
+      },
+
+      // payments
+      payments: {
+        select: {
+          amount: true,
+          status: true,
+          transactionId: true,
+        },
+      },
+    },
+
+    // orderby
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+
+  return result;
+};
+
 export {
   confirmOrderIntoDB,
   createOrderIntoDB,
   failedOrderIntoDB,
+  getAllShopsOrdersHistoryFromDB,
   getCustomerOrderHistoryFromDB,
-  getMyCustomersOrdersHistoryFromDB
+  getMyCustomersOrdersHistoryFromDB,
 };

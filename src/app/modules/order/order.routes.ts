@@ -4,6 +4,7 @@ import auth from "../../middlewares/auth";
 import {
   createOrder,
   failedOrder,
+  getAllShopsOrdersHistory,
   getCustomerOrderHistory,
   getMyCustomersOrdersHistory,
   paymentConfirmation,
@@ -27,6 +28,12 @@ orderRoutes.get(
   "/my-customer-history",
   auth(UserRole.VENDOR),
   getMyCustomersOrdersHistory
+);
+
+orderRoutes.get(
+  "/shops-orders-history",
+  auth(UserRole.ADMIN),
+  getAllShopsOrdersHistory
 );
 
 export default orderRoutes;
