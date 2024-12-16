@@ -12,8 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.failedOrderIntoDB = exports.createOrderIntoDB = exports.confirmOrderIntoDB = void 0;
-// services
+exports.getMyCustomersOrdersHistoryFromDB = exports.getCustomerOrderHistoryFromDB = exports.getAllShopsOrdersHistoryFromDB = exports.failedOrderIntoDB = exports.createOrderIntoDB = exports.confirmOrderIntoDB = void 0;
 const client_1 = require("@prisma/client");
 const http_status_codes_1 = require("http-status-codes");
 const uuid_1 = require("uuid");
@@ -21,7 +20,7 @@ const payment_utils_1 = require("../../../utils/payment.utils");
 const AppError_1 = __importDefault(require("../../error/AppError"));
 const prisma_1 = __importDefault(require("../../shared/prisma"));
 const createOrderIntoDB = (user, payload) => __awaiter(void 0, void 0, void 0, function* () {
-    const transactionId = (0, uuid_1.v4)();
+    const transactionId = (0, uuid_1.v4)().slice(0, 8);
     const { shopId, items, totalPrice, discountedAmount, discount, grandTotal } = payload;
     if (!items || items.length === 0) {
         throw new Error("Order must include at least one item.");
@@ -165,3 +164,151 @@ const failedOrderIntoDB = (transactionId) => __awaiter(void 0, void 0, void 0, f
     return result;
 });
 exports.failedOrderIntoDB = failedOrderIntoDB;
+const getCustomerOrderHistoryFromDB = (user) => __awaiter(void 0, void 0, void 0, function* () {
+    // find customer data
+    const customerData = yield prisma_1.default.user.findUniqueOrThrow({
+        where: {
+            email: user.email,
+            status: client_1.UserStatus.ACTIVE,
+        },
+    });
+    // find order history
+    const result = yield prisma_1.default.order.findMany({
+        where: {
+            customerId: customerData.id,
+        },
+        include: {
+            // order items
+            orderItems: {
+                include: {
+                    product: {
+                        select: {
+                            name: true,
+                            price: true,
+                            images: true,
+                        },
+                    },
+                },
+            },
+            // shop
+            shop: {
+                select: {
+                    name: true,
+                    logo: true,
+                },
+            },
+            // payments
+            payments: {
+                select: {
+                    amount: true,
+                    status: true,
+                    transactionId: true,
+                },
+            },
+        },
+        // orderby
+        orderBy: {
+            createdAt: "desc",
+        },
+    });
+    return result;
+});
+exports.getCustomerOrderHistoryFromDB = getCustomerOrderHistoryFromDB;
+const getMyCustomersOrdersHistoryFromDB = (user) => __awaiter(void 0, void 0, void 0, function* () {
+    // find vendor data
+    const vendorData = yield prisma_1.default.user.findUniqueOrThrow({
+        where: {
+            email: user.email,
+            status: client_1.UserStatus.ACTIVE,
+        },
+        include: {
+            shop: true,
+        },
+    });
+    const shopData = yield prisma_1.default.shop.findUniqueOrThrow({
+        where: {
+            vendorId: vendorData.id,
+        },
+    });
+    // find vendor order history
+    const result = yield prisma_1.default.order.findMany({
+        where: {
+            shopId: shopData.id,
+        },
+        include: {
+            // order items
+            orderItems: {
+                include: {
+                    product: {
+                        select: {
+                            name: true,
+                            price: true,
+                            images: true,
+                        },
+                    },
+                },
+            },
+            // shop
+            shop: {
+                select: {
+                    name: true,
+                    logo: true,
+                },
+            },
+            // payments
+            payments: {
+                select: {
+                    amount: true,
+                    status: true,
+                    transactionId: true,
+                },
+            },
+        },
+        // orderby
+        orderBy: {
+            createdAt: "desc",
+        },
+    });
+    return result;
+});
+exports.getMyCustomersOrdersHistoryFromDB = getMyCustomersOrdersHistoryFromDB;
+const getAllShopsOrdersHistoryFromDB = () => __awaiter(void 0, void 0, void 0, function* () {
+    // find all shops order history
+    const result = yield prisma_1.default.order.findMany({
+        include: {
+            // order items
+            orderItems: {
+                include: {
+                    product: {
+                        select: {
+                            name: true,
+                            price: true,
+                            images: true,
+                        },
+                    },
+                },
+            },
+            // shop
+            shop: {
+                select: {
+                    name: true,
+                    logo: true,
+                },
+            },
+            // payments
+            payments: {
+                select: {
+                    amount: true,
+                    status: true,
+                    transactionId: true,
+                },
+            },
+        },
+        // orderby
+        orderBy: {
+            createdAt: "desc",
+        },
+    });
+    return result;
+});
+exports.getAllShopsOrdersHistoryFromDB = getAllShopsOrdersHistoryFromDB;

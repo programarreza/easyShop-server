@@ -12,14 +12,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.paymentConfirmation = exports.failedOrder = exports.createOrder = void 0;
+exports.getAllShopsOrdersHistory = exports.paymentConfirmation = exports.getMyCustomersOrdersHistory = exports.getCustomerOrderHistory = exports.failedOrder = exports.createOrder = void 0;
 const client_1 = require("@prisma/client");
 const http_status_codes_1 = require("http-status-codes");
 const config_1 = __importDefault(require("../../config"));
 const catchAsync_1 = __importDefault(require("../../shared/catchAsync"));
 const sendResponse_1 = __importDefault(require("../../shared/sendResponse"));
 const order_services_1 = require("./order.services");
-// controller
 const createOrder = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const user = req.user;
     const result = yield (0, order_services_1.createOrderIntoDB)(user, req.body);
@@ -53,3 +52,35 @@ const failedOrder = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, vo
     }
 }));
 exports.failedOrder = failedOrder;
+const getCustomerOrderHistory = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const result = yield (0, order_services_1.getCustomerOrderHistoryFromDB)(user);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        success: true,
+        message: "Orders history retrieved successfully!",
+        data: result,
+    });
+}));
+exports.getCustomerOrderHistory = getCustomerOrderHistory;
+const getMyCustomersOrdersHistory = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = req.user;
+    const result = yield (0, order_services_1.getMyCustomersOrdersHistoryFromDB)(user);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        success: true,
+        message: "My customers orders history retrieved successfully!",
+        data: result,
+    });
+}));
+exports.getMyCustomersOrdersHistory = getMyCustomersOrdersHistory;
+const getAllShopsOrdersHistory = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const result = yield (0, order_services_1.getAllShopsOrdersHistoryFromDB)();
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        success: true,
+        message: "All shops orders history retrieved successfully!",
+        data: result,
+    });
+}));
+exports.getAllShopsOrdersHistory = getAllShopsOrdersHistory;

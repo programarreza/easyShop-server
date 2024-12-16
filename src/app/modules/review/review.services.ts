@@ -5,7 +5,7 @@ import AppError from "../../error/AppError";
 import prisma from "../../shared/prisma";
 
 const createReviewIntoDB = async (user: JwtPayload, payload: Review) => {
-  // find user
+  // find the customer
   const customerData = await prisma.user.findUniqueOrThrow({
     where: {
       email: user.email,
@@ -14,27 +14,69 @@ const createReviewIntoDB = async (user: JwtPayload, payload: Review) => {
     },
   });
 
+  // Check if the review already exists for this product
   const isExist = await prisma.review.findFirst({
-    where: { reviewText: payload.reviewText },
+    where: { customerId: customerData.id, productId: payload.productId },
   });
 
   if (isExist) {
-    throw new AppError(StatusCodes.CONFLICT, "This review already exist!");
+    throw new AppError(
+      StatusCodes.CONFLICT,
+      "This product review can only be submitted once."
+    );
   }
 
-  const productExists = await prisma.product.findUnique({
-    where: { id: payload.productId },
+  // Check if the customer has purchased this product
+  const orderExists = await prisma.order.findFirst({
+    where: {
+      customerId: customerData.id,
+      orderItems: {
+        some: {
+          productId: payload.productId,
+        },
+      },
+    },
   });
 
-  if (!productExists) {
-    throw new AppError(StatusCodes.BAD_REQUEST, "Invalid product ID!");
+  if (!orderExists) {
+    throw new AppError(
+      StatusCodes.BAD_REQUEST,
+      "This product does not belong to your order history."
+    );
   }
 
-  const result = await prisma.review.create({
-    data: { ...payload, customerId: customerData.id },
+  // create the review
+  const newReview = await prisma.review.create({
+    data: {
+      ...payload,
+      customerId: customerData.id,
+    },
   });
 
-  return result;
+  // calculate the average rating
+  const averageRating = await prisma.review.aggregate({
+    where: {
+      productId: payload.productId,
+    },
+    _avg: {
+      rating: true,
+    },
+  });
+
+  // Convert Decimal to number
+  const avgRating = averageRating._avg.rating?.toNumber() || 0;
+
+  // update the products rating field
+  await prisma.product.update({
+    where: {
+      id: payload.productId,
+    },
+    data: {
+      rating: Math.floor(avgRating),
+    },
+  });
+
+  return newReview;
 };
 
 const getAllReviewsFromDB = async () => {
