@@ -97,6 +97,9 @@ const getMyReviewsFromDB = async (user: JwtPayload) => {
     where: {
       customerId: customerData.id,
     },
+    include: {
+      product: true,
+    },
   });
 
   return result;

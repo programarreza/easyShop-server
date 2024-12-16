@@ -235,6 +235,11 @@ const getSingleProductFromDB = async (id: string) => {
   const result = await prisma.product.findUnique({
     where: { id, isDeleted: false },
     include: {
+      review: {
+        include: {
+          customer: true,
+        },
+      },
       categories: true,
       shop: {
         include: {
