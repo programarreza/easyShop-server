@@ -55,8 +55,8 @@ model User {
   review   Review[]
   followed Followed[]
 
-  orders     Order[]
-  payments   Payment[]
+  orders   Order[]
+  payments Payment[]
 }
 
 model Categories {
@@ -126,8 +126,9 @@ model Review {
   productId String
   product   Product @relation(fields: [productId], references: [id])
 
-  rating     Decimal @default(0)
-  reviewText String
+  rating       Decimal @default(0)
+  reviewText   String
+  reviewReplay String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -211,4 +212,3 @@ model Payment {
   status    PaymentStatus
   createdAt DateTime      @default(now())
 }
-

@@ -4,6 +4,7 @@ import sendResponse from "../../shared/sendResponse";
 import {
   createReviewIntoDB,
   getAllReviewsFromDB,
+  getMyProductReviewsFromDB,
   getMyReviewsFromDB,
 } from "./review.services";
 
@@ -42,4 +43,16 @@ const getMyReviews = catchAsync(async (req, res) => {
   });
 });
 
-export { createReview, getAllReviews, getMyReviews };
+const getMyProductReviews = catchAsync(async (req, res) => {
+  const user = req.user;
+  const result = await getMyProductReviewsFromDB(user);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "My products reviews retrieved successfully!",
+    data: result,
+  });
+});
+
+export { createReview, getAllReviews, getMyProductReviews, getMyReviews };

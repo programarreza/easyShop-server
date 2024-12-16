@@ -105,4 +105,43 @@ const getMyReviewsFromDB = async (user: JwtPayload) => {
   return result;
 };
 
-export { createReviewIntoDB, getAllReviewsFromDB, getMyReviewsFromDB };
+const getMyProductReviewsFromDB = async (user: JwtPayload) => {
+  // find the vendor
+  const vendorData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: user.email,
+      status: UserStatus.ACTIVE,
+    },
+  });
+
+  // find the shop associated width the vendor
+  const shopData = await prisma.shop.findUniqueOrThrow({
+    where: {
+      vendorId: vendorData.id,
+    },
+    include: {
+      product: true,
+    },
+  });
+
+  // get the product IDs from the shop
+  const productIds = shopData.product.map((product) => product.id);
+
+  const result = await prisma.review.findMany({
+    where: {
+      productId: { in: productIds },
+    },
+    include: {
+      product: true,
+    },
+  });
+
+  return result;
+};
+
+export {
+  createReviewIntoDB,
+  getAllReviewsFromDB,
+  getMyProductReviewsFromDB,
+  getMyReviewsFromDB,
+};
