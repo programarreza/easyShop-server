@@ -1,4 +1,10 @@
-import { Prisma, Product, UserRole, UserStatus } from "@prisma/client";
+import {
+  Prisma,
+  Product,
+  ShopStatus,
+  UserRole,
+  UserStatus,
+} from "@prisma/client";
 import { StatusCodes } from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
 import AppError from "../../error/AppError";
@@ -19,6 +25,13 @@ const createProductIntoDB = async (user: JwtPayload, payload: Product) => {
       shop: true,
     },
   });
+
+  if (vendorData.shop?.status === ShopStatus.BLOCKED) {
+    throw new AppError(
+      StatusCodes.CONFLICT,
+      "Access Denied: Your shop has been blocked. Please contact support for further assistance."
+    );
+  }
 
   const isExist = await prisma.product.findFirst({
     where: { name: payload.name },

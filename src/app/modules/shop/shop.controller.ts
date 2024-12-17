@@ -8,6 +8,7 @@ import {
   getAllShopsFromDB,
   getMyShopFromDB,
   getSingleShopFromDB,
+  shopStatusChangeIntoDB,
   updateMyShopIntoDB,
 } from "./shop.services";
 
@@ -91,11 +92,24 @@ const deleteMyShop = catchAsync(async (req, res) => {
   });
 });
 
+const shopStatusChange = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await shopStatusChangeIntoDB(id, req.body);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "Shop status changed successfully!",
+    data: result,
+  });
+});
+
 export {
   createShop,
   deleteMyShop,
   getAllShops,
   getMyShop,
   getSingleShop,
+  shopStatusChange,
   updateMyShop,
 };

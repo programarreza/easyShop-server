@@ -1,4 +1,4 @@
-import { Prisma, Shop, UserRole, UserStatus } from "@prisma/client";
+import { Prisma, Shop, ShopStatus, UserRole, UserStatus } from "@prisma/client";
 import { StatusCodes } from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
 import AppError from "../../error/AppError";
@@ -64,6 +64,15 @@ const getAllShopsFromDB = async (filters: any, options: TPaginationOptions) => {
     take: limit,
     orderBy:
       sortBy && sortOrder ? { [sortBy]: sortOrder } : { createdAt: "desc" },
+    include: {
+      vendor: {
+        select: {
+          name: true,
+          email: true,
+          phoneNumber: true,
+        },
+      },
+    },
   });
 
   const total = await prisma.shop.count({
@@ -166,11 +175,40 @@ const deleteMyShopIntoDB = async (user: JwtPayload) => {
   return result;
 };
 
+const shopStatusChangeIntoDB = async (
+  shopId: string,
+  payload: { status: ShopStatus }
+) => {
+  const shopData = await prisma.shop.findUniqueOrThrow({
+    where: {
+      id: shopId,
+      isDeleted: false,
+    },
+  });
+
+  if (shopData.status === payload.status) {
+    throw new AppError(
+      StatusCodes.CONFLICT,
+      `This shop status already ${payload.status}`
+    );
+  }
+
+  const result = await prisma.shop.update({
+    where: {
+      id: shopData.id,
+    },
+    data: payload,
+  });
+
+  return result;
+};
+
 export {
   createShopIntoDB,
   deleteMyShopIntoDB,
   getAllShopsFromDB,
   getMyShopFromDB,
   getSingleShopFromDB,
+  shopStatusChangeIntoDB,
   updateMyShopIntoDB,
 };

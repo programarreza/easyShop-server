@@ -9,6 +9,7 @@ import {
   getAllShops,
   getMyShop,
   getSingleShop,
+  shopStatusChange,
   updateMyShop,
 } from "./shop.controller";
 import {
@@ -46,6 +47,8 @@ shopsRoutes.patch(
 );
 
 shopsRoutes.delete("/my-shop", auth(UserRole.VENDOR), deleteMyShop);
+
+shopsRoutes.patch("/status/:id", shopStatusChange);
 
 shopsRoutes.get("/:id", getSingleShop);
 
