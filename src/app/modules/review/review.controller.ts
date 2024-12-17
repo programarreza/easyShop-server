@@ -6,6 +6,7 @@ import {
   getAllReviewsFromDB,
   getMyProductReviewsFromDB,
   getMyReviewsFromDB,
+  replayMyProductReviewFromDB,
 } from "./review.services";
 
 const createReview = catchAsync(async (req, res) => {
@@ -55,4 +56,21 @@ const getMyProductReviews = catchAsync(async (req, res) => {
   });
 });
 
-export { createReview, getAllReviews, getMyProductReviews, getMyReviews };
+const replayMyProductReview = catchAsync(async (req, res) => {
+  const result = await replayMyProductReviewFromDB( req.body);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "My products review replay successfully!",
+    data: result,
+  });
+});
+
+export {
+  createReview,
+  getAllReviews,
+  getMyProductReviews,
+  getMyReviews,
+  replayMyProductReview,
+};

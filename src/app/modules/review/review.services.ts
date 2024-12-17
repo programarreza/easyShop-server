@@ -139,9 +139,36 @@ const getMyProductReviewsFromDB = async (user: JwtPayload) => {
   return result;
 };
 
+const replayMyProductReviewFromDB = async (payload: any) => {
+  console.log({ payload });
+
+  const isExist = await prisma.review.findUnique({
+    where: {
+      id: payload.reviewId,
+      reviewReplay: payload.reviewReplay,
+    },
+  });
+
+  if (isExist) {
+    throw new AppError(StatusCodes.CONFLICT, "Already replayed ");
+  }
+
+  const result = await prisma.review.update({
+    where: {
+      id: payload.reviewId,
+    },
+    data: {
+      reviewReplay: payload.reviewReplay,
+    },
+  });
+
+  return result;
+};
+
 export {
   createReviewIntoDB,
   getAllReviewsFromDB,
   getMyProductReviewsFromDB,
   getMyReviewsFromDB,
+  replayMyProductReviewFromDB,
 };

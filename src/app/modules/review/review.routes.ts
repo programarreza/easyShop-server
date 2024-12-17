@@ -7,6 +7,7 @@ import {
   getAllReviews,
   getMyProductReviews,
   getMyReviews,
+  replayMyProductReview,
 } from "./review.controller";
 import { createReviewValidationSchema } from "./review.validation";
 
@@ -21,10 +22,17 @@ reviewRoutes.post(
 
 reviewRoutes.get("/", getAllReviews);
 reviewRoutes.get("/me", auth(UserRole.CUSTOMER), getMyReviews);
+
 reviewRoutes.get(
   "/my-product-reviews",
   auth(UserRole.VENDOR),
   getMyProductReviews
+);
+
+reviewRoutes.post(
+  "/my-product-reviews/replay",
+  auth(UserRole.VENDOR),
+  replayMyProductReview
 );
 
 export default reviewRoutes;
