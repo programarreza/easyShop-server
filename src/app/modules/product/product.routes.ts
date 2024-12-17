@@ -15,6 +15,7 @@ import {
   getRelevantProducts,
   getShopProducts,
   getSingleProduct,
+  productCompare,
   updateProduct,
 } from "./product.controller";
 import {
@@ -60,6 +61,8 @@ productRoutes.delete(
   auth(UserRole.VENDOR),
   deleteMyFlashSalesProduct
 );
+
+productRoutes.post("/compare", productCompare);
 
 productRoutes.delete("/:id", deleteProduct);
 

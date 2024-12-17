@@ -15,6 +15,7 @@ import {
   getRelevantProductsFromDB,
   getShopProductsFromDB,
   getSingleProductFromDB,
+  productCompareIntoDB,
   updateProductFromDB,
 } from "./product.services";
 
@@ -173,6 +174,17 @@ const deleteProduct = catchAsync(async (req, res) => {
   });
 });
 
+const productCompare = catchAsync(async (req, res) => {
+  const result = await productCompareIntoDB(req.body);
+
+  sendResponse(res, {
+    statusCode: StatusCodes.OK,
+    success: true,
+    message: "product compare successfully!",
+    data: result,
+  });
+});
+
 export {
   createFlashSalesProduct,
   createProduct,
@@ -186,4 +198,5 @@ export {
   getShopProducts,
   getSingleProduct,
   updateProduct,
+  productCompare
 };

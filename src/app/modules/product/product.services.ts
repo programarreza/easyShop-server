@@ -418,6 +418,49 @@ const deleteMyFlashSalesProductsIntoDB = async (
   return result;
 };
 
+// product compare
+const productCompareIntoDB = async (payload: any) => {
+  const { productIds } = payload;
+
+  if (!productIds || productIds.length < 2 || productIds.length > 3) {
+    throw new AppError(
+      StatusCodes.BAD_REQUEST,
+      "You can compare between 2 and 3 products"
+    );
+  }
+
+  // Check for duplicate product IDs in the input array
+  const uniqueProductIds = new Set(productIds);
+  if (uniqueProductIds.size !== productIds.length) {
+    throw new AppError(
+      StatusCodes.BAD_REQUEST,
+      "Duplicate products are not allowed for comparison."
+    );
+  }
+
+  const products = await prisma.product.findMany({
+    where: {
+      id: { in: productIds },
+      isDeleted: false,
+    },
+    include: {
+      categories: true,
+      shop: true,
+    },
+  });
+
+  // Validate that all products are from the same category
+  const categories = new Set(products.map((item) => item.categories.id));
+  if (categories.size > 1) {
+    throw new AppError(
+      StatusCodes.BAD_REQUEST,
+      "All products must be from the same category to compare."
+    );
+  }
+
+  return products;
+};
+
 export {
   createFlashSalesProductIntoDB,
   createProductIntoDB,
@@ -430,5 +473,6 @@ export {
   getRelevantProductsFromDB,
   getShopProductsFromDB,
   getSingleProductFromDB,
+  productCompareIntoDB,
   updateProductFromDB,
 };
