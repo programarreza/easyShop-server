@@ -22,5 +22,6 @@ shopsRoutes.patch("/my-shop", multer_config_1.multerUpload.single("image"), (req
     next();
 }, (0, validateRequest_1.default)(shop_validation_1.updateShopValidationSchema), (0, auth_1.default)(client_1.UserRole.VENDOR), shop_controller_1.updateMyShop);
 shopsRoutes.delete("/my-shop", (0, auth_1.default)(client_1.UserRole.VENDOR), shop_controller_1.deleteMyShop);
+shopsRoutes.patch("/status/:id", shop_controller_1.shopStatusChange);
 shopsRoutes.get("/:id", shop_controller_1.getSingleShop);
 exports.default = shopsRoutes;

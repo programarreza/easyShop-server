@@ -13,4 +13,6 @@ const reviewRoutes = (0, express_1.Router)();
 reviewRoutes.post("/create-review", (0, auth_1.default)(client_1.UserRole.CUSTOMER), (0, validateRequest_1.default)(review_validation_1.createReviewValidationSchema), review_controller_1.createReview);
 reviewRoutes.get("/", review_controller_1.getAllReviews);
 reviewRoutes.get("/me", (0, auth_1.default)(client_1.UserRole.CUSTOMER), review_controller_1.getMyReviews);
+reviewRoutes.get("/my-product-reviews", (0, auth_1.default)(client_1.UserRole.VENDOR), review_controller_1.getMyProductReviews);
+reviewRoutes.post("/my-product-reviews/replay", (0, auth_1.default)(client_1.UserRole.VENDOR), review_controller_1.replayMyProductReview);
 exports.default = reviewRoutes;

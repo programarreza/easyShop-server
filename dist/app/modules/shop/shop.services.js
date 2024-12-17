@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateMyShopIntoDB = exports.getSingleShopFromDB = exports.getMyShopFromDB = exports.getAllShopsFromDB = exports.deleteMyShopIntoDB = exports.createShopIntoDB = void 0;
+exports.updateMyShopIntoDB = exports.shopStatusChangeIntoDB = exports.getSingleShopFromDB = exports.getMyShopFromDB = exports.getAllShopsFromDB = exports.deleteMyShopIntoDB = exports.createShopIntoDB = void 0;
 const client_1 = require("@prisma/client");
 const http_status_codes_1 = require("http-status-codes");
 const AppError_1 = __importDefault(require("../../error/AppError"));
@@ -63,6 +63,15 @@ const getAllShopsFromDB = (filters, options) => __awaiter(void 0, void 0, void 0
         skip,
         take: limit,
         orderBy: sortBy && sortOrder ? { [sortBy]: sortOrder } : { createdAt: "desc" },
+        include: {
+            vendor: {
+                select: {
+                    name: true,
+                    email: true,
+                    phoneNumber: true,
+                },
+            },
+        },
     });
     const total = yield prisma_1.default.shop.count({
         where: whereConditions,
@@ -153,3 +162,22 @@ const deleteMyShopIntoDB = (user) => __awaiter(void 0, void 0, void 0, function*
     return result;
 });
 exports.deleteMyShopIntoDB = deleteMyShopIntoDB;
+const shopStatusChangeIntoDB = (shopId, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const shopData = yield prisma_1.default.shop.findUniqueOrThrow({
+        where: {
+            id: shopId,
+            isDeleted: false,
+        },
+    });
+    if (shopData.status === payload.status) {
+        throw new AppError_1.default(http_status_codes_1.StatusCodes.CONFLICT, `This shop status already ${payload.status}`);
+    }
+    const result = yield prisma_1.default.shop.update({
+        where: {
+            id: shopData.id,
+        },
+        data: payload,
+    });
+    return result;
+});
+exports.shopStatusChangeIntoDB = shopStatusChangeIntoDB;

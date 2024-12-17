@@ -23,7 +23,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateProductFromDB = exports.getSingleProductFromDB = exports.getShopProductsFromDB = exports.getRelevantProductsFromDB = exports.getMyProductsFromDB = exports.getMyFlashSalesProductsFromDB = exports.getAllProductsFromDB = exports.getAllFlashSalesProductsFromDB = exports.deleteProductIntoDB = exports.deleteMyFlashSalesProductsIntoDB = exports.createProductIntoDB = exports.createFlashSalesProductIntoDB = void 0;
+exports.updateProductFromDB = exports.productCompareIntoDB = exports.getSingleProductFromDB = exports.getShopProductsFromDB = exports.getRelevantProductsFromDB = exports.getMyProductsFromDB = exports.getMyFlashSalesProductsFromDB = exports.getAllProductsFromDB = exports.getAllFlashSalesProductsFromDB = exports.deleteProductIntoDB = exports.deleteMyFlashSalesProductsIntoDB = exports.createProductIntoDB = exports.createFlashSalesProductIntoDB = void 0;
 const client_1 = require("@prisma/client");
 const http_status_codes_1 = require("http-status-codes");
 const AppError_1 = __importDefault(require("../../error/AppError"));
@@ -31,6 +31,7 @@ const calculatePagination_1 = require("../../helpers/calculatePagination");
 const prisma_1 = __importDefault(require("../../shared/prisma"));
 const product_constant_1 = require("./product.constant");
 const createProductIntoDB = (user, payload) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
     // find vendor
     const vendorData = yield prisma_1.default.user.findUniqueOrThrow({
         where: {
@@ -42,6 +43,9 @@ const createProductIntoDB = (user, payload) => __awaiter(void 0, void 0, void 0,
             shop: true,
         },
     });
+    if (((_a = vendorData.shop) === null || _a === void 0 ? void 0 : _a.status) === client_1.ShopStatus.BLOCKED) {
+        throw new AppError_1.default(http_status_codes_1.StatusCodes.CONFLICT, "Access Denied: Your shop has been blocked. Please contact support for further assistance.");
+    }
     const isExist = yield prisma_1.default.product.findFirst({
         where: { name: payload.name },
     });
@@ -216,6 +220,11 @@ const getSingleProductFromDB = (id) => __awaiter(void 0, void 0, void 0, functio
     const result = yield prisma_1.default.product.findUnique({
         where: { id, isDeleted: false },
         include: {
+            review: {
+                include: {
+                    customer: true,
+                },
+            },
             categories: true,
             shop: {
                 include: {
@@ -379,3 +388,32 @@ const deleteMyFlashSalesProductsIntoDB = (user, productId) => __awaiter(void 0, 
     return result;
 });
 exports.deleteMyFlashSalesProductsIntoDB = deleteMyFlashSalesProductsIntoDB;
+// product compare
+const productCompareIntoDB = (payload) => __awaiter(void 0, void 0, void 0, function* () {
+    const { productIds } = payload;
+    if (!productIds || productIds.length < 2 || productIds.length > 3) {
+        throw new AppError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "You can compare between 2 and 3 products");
+    }
+    // Check for duplicate product IDs in the input array
+    const uniqueProductIds = new Set(productIds);
+    if (uniqueProductIds.size !== productIds.length) {
+        throw new AppError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "Duplicate products are not allowed for comparison.");
+    }
+    const products = yield prisma_1.default.product.findMany({
+        where: {
+            id: { in: productIds },
+            isDeleted: false,
+        },
+        include: {
+            categories: true,
+            shop: true,
+        },
+    });
+    // Validate that all products are from the same category
+    const categories = new Set(products.map((item) => item.categories.id));
+    if (categories.size > 1) {
+        throw new AppError_1.default(http_status_codes_1.StatusCodes.BAD_REQUEST, "All products must be from the same category to compare.");
+    }
+    return products;
+});
+exports.productCompareIntoDB = productCompareIntoDB;

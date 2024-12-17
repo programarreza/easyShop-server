@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateMyShop = exports.getSingleShop = exports.getMyShop = exports.getAllShops = exports.deleteMyShop = exports.createShop = void 0;
+exports.updateMyShop = exports.shopStatusChange = exports.getSingleShop = exports.getMyShop = exports.getAllShops = exports.deleteMyShop = exports.createShop = void 0;
 const http_status_codes_1 = require("http-status-codes");
 const catchAsync_1 = __importDefault(require("../../shared/catchAsync"));
 const pick_1 = __importDefault(require("../../shared/pick"));
@@ -87,3 +87,14 @@ const deleteMyShop = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, v
     });
 }));
 exports.deleteMyShop = deleteMyShop;
+const shopStatusChange = (0, catchAsync_1.default)((req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { id } = req.params;
+    const result = yield (0, shop_services_1.shopStatusChangeIntoDB)(id, req.body);
+    (0, sendResponse_1.default)(res, {
+        statusCode: http_status_codes_1.StatusCodes.OK,
+        success: true,
+        message: "Shop status changed successfully!",
+        data: result,
+    });
+}));
+exports.shopStatusChange = shopStatusChange;

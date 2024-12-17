@@ -23,6 +23,7 @@ productRoutes.get("/my-flash-sales-products", (0, auth_1.default)(client_1.UserR
 productRoutes.get("/flash-sales-products", product_controller_1.getAllFlashSalesProducts);
 productRoutes.post("/relevant-products", product_controller_1.getRelevantProducts);
 productRoutes.delete("/my-flash-sales-products/:id", (0, auth_1.default)(client_1.UserRole.VENDOR), product_controller_1.deleteMyFlashSalesProduct);
+productRoutes.post("/compare", product_controller_1.productCompare);
 productRoutes.delete("/:id", product_controller_1.deleteProduct);
 productRoutes.get("/:id/shop-product", product_controller_1.getShopProducts);
 productRoutes.get("/:id", product_controller_1.getSingleProduct);
