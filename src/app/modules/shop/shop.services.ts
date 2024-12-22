@@ -102,6 +102,7 @@ const getSingleShopFromDB = async (id: string) => {
     include: {
       vendor: true,
       coupon: true,
+      followed: true,
     },
   });
 

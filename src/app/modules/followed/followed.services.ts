@@ -27,13 +27,27 @@ const createFollowIntoDB = async (
     throw new AppError(StatusCodes.CONFLICT, "you are already followed");
   }
 
-  const result = await prisma.followed.create({
-    data: {
-      ...payload,
-      customerId: customerData.id,
-    },
-  });
+  const result = await prisma.$transaction(async (tx) => {
+    const followed = await tx.followed.create({
+      data: {
+        ...payload,
+        customerId: customerData.id,
+      },
+    });
 
+     await tx.shop.update({
+      where: {
+        id: payload.shopId,
+      },
+      data: {
+        followerCount: {
+          increment: 1,
+        },
+      },
+    });
+
+    return followed;
+  });
   return result;
 };
 
