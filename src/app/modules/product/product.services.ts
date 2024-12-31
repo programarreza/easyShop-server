@@ -64,7 +64,7 @@ const getAllProductsFromDB = async (
     options as any
   );
 
-  const { searchTerm, categories, ...filterData } = filters;
+  const { searchTerm, categories, minPrice, maxPrice, ...filterData } = filters;
   const andConditions: Prisma.ProductWhereInput[] = [];
 
   if (searchTerm) {
@@ -85,6 +85,16 @@ const getAllProductsFromDB = async (
           contains: categories,
           mode: "insensitive",
         },
+      },
+    });
+  }
+
+  // Price range conditions (based only on the slider)
+  if (minPrice || maxPrice) {
+    andConditions.push({
+      price: {
+        ...(minPrice && { gte: parseInt(minPrice, 10) }),
+        ...(maxPrice && { lte: parseInt(maxPrice, 10) }),
       },
     });
   }
@@ -487,5 +497,6 @@ export {
   getShopProductsFromDB,
   getSingleProductFromDB,
   productCompareIntoDB,
-  updateProductFromDB,
+  updateProductFromDB
 };
+
